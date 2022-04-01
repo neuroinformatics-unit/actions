@@ -1,13 +1,6 @@
 name: 'Python test'
 description: 'Run Python tests using tox'
 
-
-inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
-
 inputs:
   python-version:
     description: 'Python version'
