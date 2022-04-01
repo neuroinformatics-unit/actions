@@ -16,10 +16,12 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
     - name: Install tox
+      shell: bash
       run: |
         python -m pip install --upgrade pip
         python -m pip install tox
     - name: Run tests
+      shell: bash
       run: tox
     - name: Report coverage to codecov
       uses: codecov/codecov-action@v2
