@@ -1,0 +1,32 @@
+name: 'Python test'
+description: 'Run Python tests using tox'
+
+
+inputs:
+  who-to-greet:  # id of input
+    description: 'Who to greet'
+    required: true
+    default: 'World'
+
+inputs:
+  python-version:
+    description: 'Python version'
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install tox
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install tox
+    - name: Run tests
+      run: tox
+    - name: Report coverage to codecov
+      uses: codecov/codecov-action@v2
