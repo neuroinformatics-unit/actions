@@ -1,0 +1,40 @@
+name: 'Python linting'
+description: 'Run Python linting using pre-commit'
+
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: set PY
+      shell: bash
+      run: echo "PY=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+
+    - name: Cache pre-commit install
+      uses: actions/cache@v2
+      with:
+        path: |
+          ${{ env.pythonLocation }}
+          ~/.cache/pre-commit
+        key: |
+          pre-commit-${{ env.PY }}-${{ hashFiles('.pre-commit-config.yaml') }}
+    - name: Install dependencies
+      shell: bash
+      run: pip install pre-commit
+
+    - name: Install pre-commit hooks
+      shell: bash
+      run: pre-commit install
+    # This will run on all files in the repo not just those that have been
+    # committed. Once formatting has been applied once globally, from then on
+    # the files being changed by pre-commit should be just those that are
+    # being committed - provided that people are using the pre-commit hook to
+    # format their code.
+    - name: run pre-commit
+      shell: bash
+      run: pre-commit run --all-files --color always
