@@ -5,18 +5,18 @@ description: 'Run Python linting using pre-commit'
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v3
       with:
-        python-version: 3.9
+        python-version: "3.10"
 
     - name: set PY
       shell: bash
       run: echo "PY=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
 
     - name: Cache pre-commit install
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ${{ env.pythonLocation }}
