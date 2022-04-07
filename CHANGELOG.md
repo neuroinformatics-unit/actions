@@ -6,14 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-## [v2] - 2022-04-06
+## [v1.1]
 
 ### Changed
 
 - Updated actions from `v2` to `v3`
 - Bumped python to `3.10` for linting
 
-## [v1] - 2022-04-05
+## [v1]
 
 ### Added
 
