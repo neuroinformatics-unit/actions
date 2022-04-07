@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Added the ``tox-args`` input to the testing action to enable positional arguments
+  to be passed to the tox command.
+
 ## [v1.1]
 
 ### Changed
