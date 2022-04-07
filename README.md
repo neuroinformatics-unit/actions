@@ -55,3 +55,16 @@ jobs:
     steps:
       - uses: brainglobe/actions/check_manifest@main
 ```
+
+# Releasing a new version
+
+1. Create a new release through the GitHub releases UI. Make sure you add the appropriate tag to the release.
+2. If not incrementing a major version (ie. going from 2.1 > 2.2), move the major tag (e.g. <tagname>=v2) to the most recent tag:
+
+```bash
+git push origin :refs/tags/<tagname>
+git tag -fa <tagname>
+git push upstream main --tags
+```
+
+  This means any actions specifying (e.g.) `v2` will automatically use the new minor version of the actions.
