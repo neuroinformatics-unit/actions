@@ -6,6 +6,11 @@ inputs:
     description: 'Python version'
     required: true
     type: string
+  tox-args:
+    description: 'Positional arguments to pass to the tox command'
+    required: false
+    type: string
+    default: ''
 
 runs:
   using: "composite"
@@ -16,7 +21,7 @@ runs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ inputs.python-version }}
-        
+
     - name: Install tox
       shell: bash
       run: |
@@ -25,7 +30,7 @@ runs:
 
     - name: Run tests
       shell: bash
-      run: tox
+      run: tox ${{ inputs.tox-args }}
 
     - name: Report coverage to codecov
       uses: codecov/codecov-action@v2
