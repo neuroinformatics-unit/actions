@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Added the ``tox-args`` input to the testing action to enable positional arguments
   to be passed to the tox command.
+- Added a `build_sdist` action for building Python package source distributions.
 
 ## [v1.1]
 
