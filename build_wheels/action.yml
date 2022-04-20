@@ -1,0 +1,16 @@
+name: 'Build wheels'
+description: 'Build Python package wheels.'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+
+    - name: Build wheels
+      # Configuration of cibuildwheel is done in pyproject.toml
+      uses: pypa/cibuildwheel@v2.3.1
+
+    - name: Upload artefact
+      uses: actions/upload-artifact@v3
+      with:
+        path: dist/*.whl

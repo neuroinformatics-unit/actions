@@ -1,0 +1,16 @@
+name: 'Build sdist'
+description: 'Build a Python package source distribution.'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+
+    - name: Build sdist
+      shell: bash
+      run: pipx run build --sdist
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        path: dist/*.tar.gz
