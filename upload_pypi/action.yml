@@ -1,7 +1,6 @@
 name: 'Upload packages to PyPi'
 description: 'Upload built packages to the Python Packaging Index (PyPi).'
 
-
 secrets:
   twine-api-key:
     description: 'Twine API key'
