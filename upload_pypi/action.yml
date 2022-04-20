@@ -1,0 +1,21 @@
+name: 'Upload packages to PyPi'
+description: 'Upload built packages to the Python Packaging Index (PyPi).'
+
+
+secrets:
+  twine-api-key:
+    description: 'Twine API key'
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: artifact
+        path: dist
+    - uses: pypa/gh-action-pypi-publish@v1.4.2
+      with:
+        user: __token__
+        password: ${{ secrets.twine-api-key }}
