@@ -8,9 +8,9 @@ runs:
 
     - name: Build wheels
       # Configuration of cibuildwheel is done in pyproject.toml
-      uses: pypa/cibuildwheel@v2.3.1
+      uses: pypa/cibuildwheel@v2.4.0
 
     - name: Upload artefact
       uses: actions/upload-artifact@v3
       with:
-        path: dist/*.whl
+        path: ./wheelhouse/*.whl
