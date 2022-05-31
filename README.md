@@ -68,3 +68,6 @@ git push upstream main --tags
 ```
 
   This means any actions specifying (e.g.) `v2` will automatically use the new minor version of the actions.
+
+  ## Contributing
+Contributions are more than welcome. Please see the [contributing guide](https://github.com/brainglobe/.github/blob/main/CONTRIBUTING.md).
