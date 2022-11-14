@@ -89,7 +89,7 @@ password: ${{ secrets.TWINE_API_KEY }}
 ```
 
 ## Full Workflows
-An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](.example_test_and_deploy.yml).
+An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).
 
 # Releasing a new version
 
