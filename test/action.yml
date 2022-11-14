@@ -6,21 +6,31 @@ inputs:
     description: 'Python version'
     required: true
     type: string
+  tox-args:
+    description: 'Positional arguments to pass to the tox command'
+    required: false
+    type: string
+    default: ''
 
 runs:
   using: "composite"
-    steps:
-        - uses: actions/checkout@v3
-        - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v3
-        with:
-            python-version: ${{ inputs.python-version }}
-            - name: Install dependencies
-            run: |
-            python -m pip install --upgrade pip
-            pip install .[dev]
-            - name: Test
-            run: pytest
+  steps:
+    - uses: actions/checkout@v3
 
-        - name: Report coverage to codecov
-         uses: codecov/codecov-action@v2
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install tox
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install tox tox-gh-actions
+
+    - name: Run tests
+      shell: bash
+      run: tox ${{ inputs.tox-args }}
+
+    - name: Report coverage to codecov
+      uses: codecov/codecov-action@v2
