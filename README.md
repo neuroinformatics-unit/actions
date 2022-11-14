@@ -5,8 +5,11 @@ can be used for running continuous integration across BrainGlobe repositories.
 If you are using Github Actions you are probably already
 
 ## test
-Runs Python tests using and uploads a coverage report to `codecov`.
+Runs Python tests using `tox`, and uploads a coverage report to `codecov`.
+A `tox.ini` file must be present in the root of the repository.
 
+Example usage for running tests across a matrix of operating systems and
+Python versions:
 Example usage for running tests across a matrix of operating systems and
 Python versions:
 
