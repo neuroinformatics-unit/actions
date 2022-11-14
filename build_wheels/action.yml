@@ -1,5 +1,5 @@
 name: 'Build wheels'
-description: 'Build Python package wheels.'
+description: 'Build Python package wheels using cibuildwheel.'
 
 runs:
   using: "composite"

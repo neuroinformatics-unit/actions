@@ -1,5 +1,5 @@
 name: 'Build sdist'
-description: 'Build a Python package source distribution.'
+description: 'Build Python package source distribution and wheels.'
 
 runs:
   using: "composite"

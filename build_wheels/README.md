@@ -1,7 +1,7 @@
 # Build wheels
 
 This action builds Python wheels on multiple operating systems. The built distribution is uploaded as an
-artefact in the ``dist`` directory.
+artefact in the ``dist`` directory. This is necessary when code is compiled, e.g. when using Cython.
 
 The wheels are built using [cibuildwheel](https://cibuildwheel.readthedocs.io/en/stable/).
 The operating system is specified in the GitHub actions configuration file that
