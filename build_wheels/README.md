@@ -1,6 +1,6 @@
 # Build wheels
 
-This action builds a Python wheels. The built distribution is uploaded as an
+This action builds Python wheels on multiple operating systems. The built distribution is uploaded as an
 artefact in the ``dist`` directory.
 
 The wheels are built using [cibuildwheel](https://cibuildwheel.readthedocs.io/en/stable/).
