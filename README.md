@@ -5,8 +5,7 @@ can be used for running continuous integration across BrainGlobe repositories.
 If you are using Github Actions you are probably already
 
 ## test
-Runs Python tests using `tox`, and uploads a coverage report to `codecov`.
-A `tox.ini` file must be present in the root of the repository.
+Runs Python tests using and uploads a coverage report to `codecov`.
 
 Example usage for running tests across a matrix of operating systems and
 Python versions:
@@ -22,7 +21,7 @@ jobs:
         python-version: [3.9, 3.10]
 
     steps:
-      - uses: brainglobe/actions/test@main
+    - uses: neuroinformatics-unit/actions/test@main
         with:
           python-version: ${{ matrix.python-version }}
 ```
@@ -39,7 +38,7 @@ jobs:
     name: Run linting
     runs-on: ubuntu-latest
     steps:
-      - uses: brainglobe/actions/lint@main
+    - uses: neuroinformatics-unit/actions/lint@main
 ```
 
 ## manifest
@@ -53,7 +52,7 @@ jobs:
     name: Check manifest
     runs-on: ubuntu-latest
     steps:
-      - uses: brainglobe/actions/check_manifest@main
+    - uses: neuroinformatics-unit/actions/check_manifest@main
 ```
 
 # Releasing a new version
@@ -69,5 +68,3 @@ git push upstream main --tags
 
   This means any actions specifying (e.g.) `v2` will automatically use the new minor version of the actions.
 
-  ## Contributing
-Contributions are more than welcome. Please see the [contributing guide](https://github.com/brainglobe/.github/blob/main/CONTRIBUTING.md).
