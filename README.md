@@ -88,6 +88,22 @@ user: __token__
 password: ${{ secrets.TWINE_API_KEY }}
 ```
 
+## Check Sphinx documentation
+Ensures that Sphinx docs can be built upon pull requests.
+
+Example usage:
+```yaml
+check_sphinx_docs:
+  name: Sphinx Docs Check
+  if: github.event_name == 'pull_request'
+  runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@v3
+  - uses: ammaraskar/sphinx-action@master
+    with:
+      docs-folder: "docs/"
+```
+
 ## Full Workflows
 An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).
 

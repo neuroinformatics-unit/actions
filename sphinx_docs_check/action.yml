@@ -1,0 +1,10 @@
+name: 'Sphinx Docs Check'
+description: 'Ensures that Sphinx docs can be built'
+
+runs:
+  runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@v3
+  - uses: ammaraskar/sphinx-action@master
+    with:
+      docs-folder: "docs/"
