@@ -112,6 +112,8 @@ publish_sphinx_docs:
   runs-on: ubuntu-latest
   steps:
   - uses: neuroinformatics-unit/actions/publish_sphinx_docs@main
+    with:
+      secret_input: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Full Workflows
