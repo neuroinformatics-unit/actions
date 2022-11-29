@@ -94,14 +94,24 @@ Ensures that Sphinx docs can be built upon pull requests.
 Example usage:
 ```yaml
 check_sphinx_docs:
-  name: Sphinx Docs Check
+  name: Check Sphinx Docs
   if: github.event_name == 'pull_request'
   runs-on: ubuntu-latest
   steps:
-  - uses: actions/checkout@v3
-  - uses: ammaraskar/sphinx-action@master
-    with:
-      docs-folder: "docs/"
+  - uses: neuroinformatics-unit/actions/check_sphinx_docs@main
+```
+
+## Publish Sphinx documentation
+Builds Sphinx documentation and deploys the built `html` pages to GitHub Pages.
+
+Example usage:
+```yaml
+publish_sphinx_docs:
+  name: Publish Sphinx Docs
+  if: github.event_name == 'push' && github.ref_type == 'tag'
+  runs-on: ubuntu-latest
+  steps:
+  - uses: neuroinformatics-unit/actions/publish_sphinx_docs@main
 ```
 
 ## Full Workflows
