@@ -88,6 +88,34 @@ user: __token__
 password: ${{ secrets.TWINE_API_KEY }}
 ```
 
+## Check Sphinx documentation
+Ensures that Sphinx docs can be built upon pull requests.
+
+Example usage:
+```yaml
+check_sphinx_docs:
+  name: Check Sphinx Docs
+  if: github.event_name == 'pull_request'
+  runs-on: ubuntu-latest
+  steps:
+  - uses: neuroinformatics-unit/actions/check_sphinx_docs@main
+```
+
+## Publish Sphinx documentation
+Builds Sphinx documentation and deploys the built `html` pages to GitHub Pages.
+
+Example usage:
+```yaml
+publish_sphinx_docs:
+  name: Publish Sphinx Docs
+  if: github.event_name == 'push' && github.ref_type == 'tag'
+  runs-on: ubuntu-latest
+  steps:
+  - uses: neuroinformatics-unit/actions/publish_sphinx_docs@main
+    with:
+      secret_input: ${{ secrets.GITHUB_TOKEN }}
+```
+
 ## Full Workflows
 An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).
 
