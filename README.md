@@ -23,6 +23,7 @@ jobs:
     - uses: neuroinformatics-unit/actions/test@main
         with:
           python-version: ${{ matrix.python-version }}
+          use-xvfb: true  # Optional, defaults to false if not specified
 ```
 
 ## Lint
@@ -131,4 +132,3 @@ git push upstream main --tags
 ```
 
 This means any actions specifying (e.g.) `v2` will automatically use the new minor version of the actions.
-
