@@ -11,6 +11,11 @@ inputs:
     required: false
     type: string
     default: ''
+  use-xvfb:
+    description: 'Run tests with XVFB on Linux'
+    required: false
+    type: boolean
+    default: false
 
 runs:
   using: "composite"
@@ -29,8 +34,16 @@ runs:
         python -m pip install tox tox-gh-actions
 
     - name: Run tests
+      if: ${{ matrix.use-xvfb }}
       shell: bash
       run: tox ${{ inputs.tox-args }}
+
+    - name: Run tests with XVFB
+      if: ${{ !matrix.use-xvfb }}
+      # SHA corresponds to latest v1 release
+      uses: GabrielBB/xvfb-action@36f535812f1bd7e367d9fc8be6eb55502c47db26
+      with:
+        run: tox ${{ inputs.tox-args }}
 
     - name: Report coverage to codecov
       uses: codecov/codecov-action@v2
