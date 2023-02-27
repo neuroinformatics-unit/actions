@@ -40,8 +40,8 @@ runs:
 
     - name: Run tests with XVFB
       if: ${{ !matrix.use-xvfb }}
-      # SHA corresponds to latest v1 release
-      uses: GabrielBB/xvfb-action@36f535812f1bd7e367d9fc8be6eb55502c47db26
+      # SHA corresponds to v1.1 release
+      uses: aganders3/headless-gui@7084a2048d5f367f66a40f79b19bb3ca28248544
       with:
         run: tox ${{ inputs.tox-args }}
 
