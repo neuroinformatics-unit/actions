@@ -89,37 +89,38 @@ user: __token__
 password: ${{ secrets.TWINE_API_KEY }}
 ```
 
-## Check Sphinx documentation
-Ensures that Sphinx docs can be built upon pull requests.
+## Build Sphinx documentation
+Ensures that Sphinx docs can be built upon pushes and pull requests to any branch.
 
 Example usage:
 ```yaml
-check_sphinx_docs:
-  name: Check Sphinx Docs
+build_sphinx_docs:
+  name: Build Sphinx Docs
   if: github.event_name == 'pull_request'
   runs-on: ubuntu-latest
   steps:
-  - uses: neuroinformatics-unit/actions/check_sphinx_docs@main
+  - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
 ```
 
 ## Publish Sphinx documentation
-Builds Sphinx documentation and deploys the built `html` pages to GitHub Pages.
+Deploys pre-built documentation to GitHub Pages.
 
 Example usage:
 ```yaml
-publish_sphinx_docs:
-  name: Publish Sphinx Docs
+deploy_sphinx_docs:
+  name: Deploy Sphinx Docs
+  needs: build_sphinx_docs
   if: github.event_name == 'push' && github.ref_type == 'tag'
   runs-on: ubuntu-latest
   steps:
-  - uses: neuroinformatics-unit/actions/publish_sphinx_docs@main
+  - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main
     with:
       secret_input: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## Full Workflows
-An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).
-
+* An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).
+* An example workflow, for building and deploying documentation can be found at [example_build_and_deploy_docs.yml](./example_docs_build_and_deploy.yml).
 # Releasing a new version
 
 1. Create a new release through the GitHub releases UI. Make sure you add the appropriate tag to the release.
