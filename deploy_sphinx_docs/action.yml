@@ -1,0 +1,31 @@
+name: 'Deploy Sphinx Docs'
+description: 'Deploys pre-built sphinx docs on GitHub Pages'
+
+inputs: 
+  secret_input:
+    description: 'The secret input for the GitHub token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+  - name: Checkout repository
+    uses: actions/checkout@v3
+
+  - name: Clear previous build if present
+    shell: bash
+    run: rm -rf ./docs/build
+
+  - name: Download the content for deployment
+    uses: actions/download-artifact@v3
+    with:
+      name: docs-build
+      path: ./docs/build
+
+  - name: Deploy
+    env: 
+      GITHUB_TOKEN: ${{ inputs.secret_input }}
+    uses: peaceiris/actions-gh-pages@v3
+    with:
+      github_token: ${{ env.GITHUB_TOKEN }}
+      publish_dir: ./docs/build
