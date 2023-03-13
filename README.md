@@ -96,7 +96,6 @@ Example usage:
 ```yaml
 build_sphinx_docs:
   name: Build Sphinx Docs
-  if: github.event_name == 'pull_request'
   runs-on: ubuntu-latest
   steps:
   - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
