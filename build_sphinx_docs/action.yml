@@ -1,10 +1,5 @@
-name: 'Sphinx Docs Publish'
+name: 'Build Sphinx Docs'
 description: 'Builds sphinx docs and publishes them to GitHub Pages'
-
-inputs: 
-  secret_input:
-    description: 'The secret input for the GitHub token'
-    required: true
 
 runs:
   using: 'composite'
@@ -25,7 +20,7 @@ runs:
   - name: Get pip cache dir
     shell: bash
     id: pip-cache
-    run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT 
+    run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
   - name: Cache dependencies
     uses: actions/cache@v3
@@ -42,13 +37,10 @@ runs:
   # needs to have sphinx.ext.githubpages in conf.py extensions list
   - name: Building documentation
     shell: bash
-    run: |
-      sphinx-build docs/source docs/build -b html
+    run: sphinx-build docs/source docs/build -b html
 
-  - name: Deploy
-    env: 
-      GITHUB_TOKEN: ${{ inputs.secret_input }}
-    uses: peaceiris/actions-gh-pages@v3
+  - name: Upload the content for deployment
+    uses: actions/upload-artifact@v3
     with:
-      github_token: ${{ env.GITHUB_TOKEN }}
-      publish_dir: ./docs/build
+      name: docs-build
+      path: ./docs/build/
