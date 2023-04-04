@@ -18,7 +18,7 @@ inputs:
     default: false
   codecov-flags:
     description: 'Flags to pass to codecov'
-    required: flase
+    required: false
     type: string
     default: ''
 
