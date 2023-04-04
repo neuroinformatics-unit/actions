@@ -1,0 +1,15 @@
+name: Test workflows
+
+on:
+  push:
+    main
+  pull_request:
+    main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./test/action.yml
+        with:
+          python-version: "3.10"
