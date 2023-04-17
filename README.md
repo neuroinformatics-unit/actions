@@ -24,6 +24,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           use-xvfb: true  # Optional, defaults to false if not specified
+          codecov-flags: "my-flag"  # Optional
 ```
 
 ## Lint
