@@ -52,4 +52,5 @@ runs:
 
     - name: Report coverage to codecov
       uses: codecov/codecov-action@v3
-      flags: ${{ inputs.codecov-flags }}
+      with:
+        flags: ${{ inputs.codecov-flags }}
