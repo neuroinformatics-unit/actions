@@ -110,6 +110,8 @@ Example usage:
 deploy_sphinx_docs:
   name: Deploy Sphinx Docs
   needs: build_sphinx_docs
+  permissions:
+      contents: write
   if: github.event_name == 'push' && github.ref_type == 'tag'
   runs-on: ubuntu-latest
   steps:
