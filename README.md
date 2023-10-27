@@ -100,7 +100,10 @@ build_sphinx_docs:
   runs-on: ubuntu-latest
   steps:
   - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+    with:
+      python-version: 3.10
 ```
+The `python-version` input is optional and defaults to `3.x` (where `x` is the latest stable version of Python 3 available on the GitHub Actions platform)
 
 ## Publish Sphinx documentation
 Deploys pre-built documentation to GitHub Pages.
