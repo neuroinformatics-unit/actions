@@ -1,6 +1,13 @@
 name: 'Build Sphinx Docs'
 description: 'Builds sphinx docs and publishes them to GitHub Pages'
 
+inputs:
+  python-version:
+    description: 'Python version'
+    required: false
+    type: string
+    default: '3.x'
+
 runs:
   using: 'composite'
   steps:
@@ -9,7 +16,7 @@ runs:
   - name: Setup Python
     uses: actions/setup-python@v4
     with:
-      python-version: '3.x'
+      python-version: ${{ inputs.python-version }}
 
   - name: Upgrade pip
     shell: bash
