@@ -102,8 +102,11 @@ build_sphinx_docs:
   - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
     with:
       python-version: 3.10
+      check-links: false
 ```
 The `python-version` input is optional and defaults to `3.x` (where `x` is the latest stable version of Python 3 available on the GitHub Actions platform)
+
+The `check-links` input is also optional and defaults to `true`. If set to `true`, the action will use the Sphinx linkcheck builder to check the integrity of all **external** links.
 
 ## Publish Sphinx documentation
 Deploys pre-built documentation to GitHub Pages.

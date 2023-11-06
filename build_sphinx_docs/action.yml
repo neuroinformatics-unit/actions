@@ -7,6 +7,11 @@ inputs:
     required: false
     type: string
     default: '3.x'
+  check-links:
+    description: 'Check links'
+    required: false
+    type: boolean
+    default: true
 
 runs:
   using: 'composite'
@@ -40,6 +45,11 @@ runs:
   - name: Install dependencies
     shell: bash
     run: python3 -m pip install -r ./docs/requirements.txt
+
+  - name: Check links
+    if: ${{ inputs.check-links == 'true' }}
+    shell: bash
+    run: sphinx-build docs/source docs/build -b linkcheck
 
   # needs to have sphinx.ext.githubpages in conf.py extensions list
   - name: Building documentation
