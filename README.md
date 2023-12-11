@@ -118,7 +118,7 @@ deploy_sphinx_docs:
   needs: build_sphinx_docs
   permissions:
       contents: write
-  if: github.event_name == 'push' && github.ref_type == 'tag'
+  if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
   runs-on: ubuntu-latest
   steps:
   - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main

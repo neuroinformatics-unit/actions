@@ -5,6 +5,7 @@ name: Build Sphinx docs and deploy to GitHub Pages
 # docs still build successfully. The deploy job only runs when a release tag is
 # pushed to the main branch and actually pushes the generated html to the
 # gh-pages branch (which triggers a GitHub pages deployment).
+# Optionally, the deploy job can also triggered by a manual workflow dispatch.
 on:
   push:
     branches:
@@ -26,7 +27,7 @@ jobs:
     needs: build_sphinx_docs
     permissions:
       contents: write
-    if: github.event_name == 'push' && github.ref_type == 'tag'
+    if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main
