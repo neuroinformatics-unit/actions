@@ -4,6 +4,15 @@
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
 version: 2
+
+defaults: &defaults # Default configuration for all actions updates
+  schedule:
+      interval: "weekly"
+  groups:
+    actions:
+      patterns:
+        - "actions/*"
+
 updates:
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
@@ -11,9 +20,28 @@ updates:
       interval: "daily"
   - package-ecosystem: "github-actions"
     directory: /build_sdist 
-    schedule:
-      interval: "weekly"
-    groups:
-      actions:
-        patterns:
-          - "actions/*"
+    <<: *defaults
+  - package-ecosystem: "github-actions"
+    directory: /build_sdist_wheels 
+    <<: *defaults
+  - package-ecosystem: "github-actions"
+    directory: /build_sphinx_docs
+    <<: *defaults
+  - package-ecosystem: "github-actions"
+    directory: /build_wheels
+    <<: *defaults
+  - package-ecosystem: "github-actions"
+    directory: /check_manifest
+    <<: *defaults
+  - package-ecosystem: "github-actions"
+    directory: /deploy_sphinx_docs
+    <<: *defaults
+  - package-ecosystem: "github-actions"
+    directory: /lint 
+    <<: *defaults
+  - package-ecosystem: "github-actions"
+    directory: /test
+    <<: *defaults
+  - package-ecosystem: "github-actions"
+    directory: /upload_pypi
+    <<: *defaults
