@@ -13,35 +13,7 @@ updates:
     directory: /build_sdist 
     schedule:
       interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: /build_sdist_wheels 
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: /build_sphinx_docs
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: /build_wheels
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: /check_manifest
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: /deploy_sphinx_docs
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: /lint 
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: /test
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: /upload_pypi
-    schedule:
-      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
