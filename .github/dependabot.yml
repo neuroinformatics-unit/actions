@@ -5,14 +5,6 @@
 
 version: 2
 
-defaults: &defaults # Default configuration for all actions updates
-  schedule:
-      interval: "weekly"
-  groups:
-    actions:
-      patterns:
-        - "actions/*"
-
 updates:
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
@@ -20,28 +12,73 @@ updates:
       interval: "daily"
   - package-ecosystem: "github-actions"
     directory: /build_sdist 
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /build_sdist_wheels 
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /build_sphinx_docs
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /build_wheels
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /check_manifest
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /deploy_sphinx_docs
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /lint 
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /test
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /upload_pypi
-    <<: *defaults
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
