@@ -4,8 +4,81 @@
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
 version: 2
+
 updates:
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: /build_sdist 
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /build_sdist_wheels 
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /build_sphinx_docs
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /build_wheels
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /check_manifest
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /deploy_sphinx_docs
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /lint 
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /test
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /upload_pypi
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
