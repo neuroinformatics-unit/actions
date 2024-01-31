@@ -4,13 +4,13 @@ description: 'Build Python package source distribution and wheels.'
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Build sdist
       shell: bash
       run: pipx run build
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: dist/*
