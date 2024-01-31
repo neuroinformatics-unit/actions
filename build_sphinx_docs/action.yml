@@ -16,10 +16,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
-  - uses: actions/checkout@v3
+  - uses: actions/checkout@v4
 
   - name: Setup Python
-    uses: actions/setup-python@v4
+    uses: actions/setup-python@v5
     with:
       python-version: ${{ inputs.python-version }}
 
@@ -35,7 +35,7 @@ runs:
     run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
   - name: Cache dependencies
-    uses: actions/cache@v3
+    uses: actions/cache@v4
     with:
       path: ${{ steps.pip-cache.outputs.dir }}
       key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -57,7 +57,7 @@ runs:
     run: sphinx-build docs/source docs/build -b html
 
   - name: Upload the content for deployment
-    uses: actions/upload-artifact@v3
+    uses: actions/upload-artifact@v4
     with:
       name: docs-build
       path: ./docs/build/
