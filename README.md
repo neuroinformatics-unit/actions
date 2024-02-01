@@ -76,18 +76,13 @@ Upload distributions to PyPI.
 Example usage:
 ```yaml
 upload_all:
-name: Publish build distributions
-needs: [build_sdist_wheels]
-runs-on: ubuntu-latest
-steps:
-- uses: actions/download-artifact@v3
-with:
-name: artifact
-path: dist
-- uses: pypa/gh-action-pypi-publish@v1.5.0
-with:
-user: __token__
-password: ${{ secrets.TWINE_API_KEY }}
+    name: Publish build distributions
+    needs: [build_sdist_wheels]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: neuroinformatics-unit/actions/upload_pypi@main
+      with:
+        secret_name: TWINE_API_KEY  # Or whatever you called your secret
 ```
 
 ## Build Sphinx documentation
