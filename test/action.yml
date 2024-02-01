@@ -51,6 +51,6 @@ runs:
         run: tox ${{ inputs.tox-args }}
 
     - name: Report coverage to codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
         flags: ${{ inputs.codecov-flags }}
