@@ -7,6 +7,7 @@ on:
       pypi-api-key:
         description: 'API key for publishing to PyPI'
         required: true
+        type: string
 
 runs:
   using: "composite"
