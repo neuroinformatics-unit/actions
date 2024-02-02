@@ -82,7 +82,8 @@ upload_all:
     steps:
     - uses: neuroinformatics-unit/actions/upload_pypi@main
       secrets:
-          pypi-api-key: ${{ secrets.MY_PYPI_KEY }}  # Replace MY_PYPI_KEY with the name of your secret
+        # Replace MY_PYPI_KEY with the name of the repository secret containing the PyPI API key
+        pypi-api-key: ${{ secrets.MY_PYPI_KEY }}
 ```
 
 ## Build Sphinx documentation

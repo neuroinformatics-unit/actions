@@ -51,5 +51,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: neuroinformatics-unit/actions/upload_pypi@main
-      with:
-        secret_name: TWINE_API_KEY  # Or whatever you called your secret
+      secrets:
+        # Replace MY_PYPI_KEY with the name of the repository secret containing the PyPI API key
+        pypi-api-key: ${{ secrets.MY_PYPI_KEY }}
