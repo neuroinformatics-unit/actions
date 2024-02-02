@@ -1,5 +1,5 @@
 name: 'Upload packages to PyPI'
-description: 'Upload built packages to the Python Packaging Index (PyPI).'
+description: 'Upload built packages to the Python Package Index (PyPI).'
 
 on:
   workflow_call:
