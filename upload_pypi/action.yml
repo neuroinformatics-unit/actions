@@ -1,13 +1,11 @@
 name: 'Upload packages to PyPI'
 description: 'Upload built packages to the Python Package Index (PyPI).'
 
-on:
-  workflow_call:
-    secrets:
-      pypi-api-key:
-        description: 'API key for publishing to PyPI'
-        required: true
-        type: string
+secrets:
+  pypi-api-key:
+    description: 'API key for publishing to PyPI'
+    required: true
+    type: string
 
 runs:
   using: "composite"
