@@ -81,8 +81,8 @@ upload_all:
     runs-on: ubuntu-latest
     steps:
     - uses: neuroinformatics-unit/actions/upload_pypi@main
-      with:
-        secret_name: TWINE_API_KEY  # Or whatever you called your secret
+      secrets:
+          pypi-api-key: ${{ secrets.MY_PYPI_KEY }}  # Replace MY_PYPI_KEY with the name of your secret
 ```
 
 ## Build Sphinx documentation
