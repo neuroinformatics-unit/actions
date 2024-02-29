@@ -21,6 +21,9 @@ inputs:
     required: false
     type: string
     default: ''
+  secret-codecov-token:
+    description: 'Codecov token to upload coverage reports'
+    required: true
 
 runs:
   using: "composite"
@@ -54,3 +57,4 @@ runs:
       uses: codecov/codecov-action@v4
       with:
         flags: ${{ inputs.codecov-flags }}
+        token: ${{ inputs.secret-codecov-token }}
