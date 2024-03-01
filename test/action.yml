@@ -46,7 +46,7 @@ runs:
     - name: Run tests with XVFB
       if: ${{ matrix.use-xvfb }}
       # SHA corresponds to v1.1 release
-      uses: aganders3/headless-gui@9f7725f27c77dec9eade5a01f3ab5566a190019b
+      uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816
       with:
         run: tox ${{ inputs.tox-args }}
 
