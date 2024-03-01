@@ -23,7 +23,7 @@ inputs:
     default: ''
   secret-codecov-token:
     description: 'Codecov token to upload coverage reports'
-    required: true
+    required: false
 
 runs:
   using: "composite"
