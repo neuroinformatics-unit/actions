@@ -23,6 +23,8 @@ jobs:
     - uses: neuroinformatics-unit/actions/test@main
         with:
           python-version: ${{ matrix.python-version }}
+          # Replace CODECOV_TOKEN with the name of the repository secret containing the upload token from codecov.io
+          secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
           use-xvfb: true  # Optional, defaults to false if not specified
           codecov-flags: "my-flag"  # Optional
 ```
