@@ -21,6 +21,9 @@ inputs:
     required: false
     type: string
     default: ''
+  secret-codecov-token:
+    description: 'Codecov token to upload coverage reports'
+    required: false
 
 runs:
   using: "composite"
@@ -50,7 +53,16 @@ runs:
       with:
         run: tox ${{ inputs.tox-args }}
 
+    - name: Issue deprecation warning for tokenless codecov
+      shell: bash
+      run: |
+        if [[ -z "${{ inputs.secret-codecov-token }}" ]]; then
+          echo '::warning::secret-codecov-token is not set. This will be required in the future.'\
+          'See https://docs.codecov.com/docs/quick-start#step-2-get-the-repository-upload-token on how to get a token.'
+        fi
+
     - name: Report coverage to codecov
       uses: codecov/codecov-action@v4
       with:
         flags: ${{ inputs.codecov-flags }}
+        token: ${{ inputs.secret-codecov-token }}
