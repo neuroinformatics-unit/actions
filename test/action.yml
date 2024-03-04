@@ -54,6 +54,7 @@ runs:
         run: tox ${{ inputs.tox-args }}
 
     - name: Issue deprecation warning for tokenless codecov
+      shell: bash
       run: |
         if [[ -z "${{ inputs.secret-codecov-token }}" ]]; then
           echo '::warning::secret-codecov-token is not set. This will be required in the future.'\
