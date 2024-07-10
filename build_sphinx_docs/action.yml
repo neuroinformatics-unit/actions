@@ -49,12 +49,11 @@ runs:
   - name: Check links
     if: ${{ inputs.check-links == 'true' }}
     shell: bash
-    run: sphinx-build docs/source docs/build -b linkcheck
-
+    run: cd docs && make linkcheck
   # needs to have sphinx.ext.githubpages in conf.py extensions list
   - name: Building documentation
     shell: bash
-    run: sphinx-build docs/source docs/build -b html
+    run: cd docs && make html
 
   - name: Upload the content for deployment
     uses: actions/upload-artifact@v4
