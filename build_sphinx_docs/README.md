@@ -21,7 +21,7 @@ It does not publish or deploy the documentation in any way (for that, check the 
 
 You can debug the linkcheck step by running it locally:
 ```bash
-make linkcheck
+cd docs && make linkcheck
 ```
 If the linkcheck step produces "false positives" for your project (i.e. marking valid links as broken), you have two options:
 
