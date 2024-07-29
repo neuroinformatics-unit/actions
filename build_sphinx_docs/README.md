@@ -9,8 +9,9 @@ The various steps include:
 * pip installing build dependencies (themes, build tools, etc.) from `docs/requirements.txt`
 * checking that external links in the documentation are not broken 
   * optional, defaults to `true` (i.e. links are checked), see the [warning](#warning) below for more information
-* building the html pages based on `docs/Makefile` using the `make` utility 
-  * pages are built from `SOURCEDIR` (should contain Sphinx source files) to `BUILDDIR` defined in the Makefile
+* building the html pages in one of two ways, by setting the `use-make` input (default: `false`)
+  * (default) using `sphinx-build` to build the pages from `docs/source` (should contain Sphinx source files) to `docs/build`
+  * (`use-make: true`) using the `make` utility with a custom `docs/Makefile` to build the pages from `SOURCEDIR` to `BUILDDIR` as defined in the Makefile
 * uploading the built html pages as an artifact named `docs-build`, for use in other actions
 
 It can be run upon all pull requests, to ensure that documentation still builds.
@@ -20,6 +21,10 @@ It does not publish or deploy the documentation in any way (for that, check the 
 ## Warning
 
 You can debug the linkcheck step by running it locally:
+```bash
+sphinx-build docs/source docs/build -b linkcheck
+```
+or, if you have `docs/Makefile`:
 ```bash
 cd docs && make linkcheck
 ```
