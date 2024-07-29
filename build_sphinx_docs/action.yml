@@ -12,6 +12,11 @@ inputs:
     required: false
     type: boolean
     default: true
+  use-make:
+    description: 'Use `make` with linkcheck and building html'
+    required: false
+    type: boolean
+    default: false
 
 runs:
   using: 'composite'
@@ -49,11 +54,22 @@ runs:
   - name: Check links
     if: ${{ inputs.check-links == 'true' }}
     shell: bash
-    run: cd docs && make linkcheck
+    run: | 
+      if [ ${{ inputs.use-make }} == 'true' ]; then
+        cd docs && make linkcheck
+      else
+        sphinx-build docs/source docs/build -b linkcheck
+      fi
+
   # needs to have sphinx.ext.githubpages in conf.py extensions list
   - name: Building documentation
     shell: bash
-    run: cd docs && make html
+    run: | 
+      if [ ${{ inputs.use-make }} == 'true' ]; then
+        cd docs && make html
+      else
+        sphinx-build docs/source docs/build -b html
+      fi
 
   - name: Upload the content for deployment
     uses: actions/upload-artifact@v4
