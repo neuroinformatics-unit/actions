@@ -5,6 +5,13 @@ inputs:
   secret_input:
     description: 'The secret input for the GitHub token'
     required: true
+  use-make:
+    description: |
+      Specify whether `make` is used in the `build_sphinx_docs` action,
+      so that the correct publish directory is used
+    required: false
+    type: boolean
+    default: false
 
 runs:
   using: 'composite'
@@ -28,4 +35,4 @@ runs:
     uses: peaceiris/actions-gh-pages@v4
     with:
       github_token: ${{ env.GITHUB_TOKEN }}
-      publish_dir: ./docs/build
+      publish_dir: ${{ inputs.use-make == 'true' && './docs/build/html' || './docs/build/' }}

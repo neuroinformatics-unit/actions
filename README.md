@@ -101,10 +101,13 @@ build_sphinx_docs:
     with:
       python-version: 3.10
       check-links: false
+      use-make: false
 ```
 The `python-version` input is optional and defaults to `3.x` (where `x` is the latest stable version of Python 3 available on the GitHub Actions platform)
 
 The `check-links` input is also optional and defaults to `true`. If set to `true`, the action will use the Sphinx linkcheck builder to check the integrity of all **external** links.
+
+The `use-make` input is optional and defaults to `false`. If set to `true`, the action will use the `make` utility with a custom `docs/Makefile` to build the pages from `SOURCEDIR` to `BUILDDIR` as defined in the Makefile. If set to `false`, the action will use `sphinx-build` to build the pages from `docs/source` to `docs/build`.
 
 ## Publish Sphinx documentation
 Deploys pre-built documentation to GitHub Pages.
@@ -122,7 +125,9 @@ deploy_sphinx_docs:
   - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main
     with:
       secret_input: ${{ secrets.GITHUB_TOKEN }}
+      use-make: false
 ```
+The `use-make` input is optional and defaults to `false`. If set to `true`, the action will assume that the Sphinx documentation is built using `make` and will use the `./docs/build/html` directory as the publish directory. If set to `false`, it will use the `./docs/build/` directory instead. 
 
 ## Full Workflows
 * An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).
