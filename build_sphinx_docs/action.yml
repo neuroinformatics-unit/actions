@@ -68,7 +68,7 @@ runs:
       if [ ${{ inputs.use-make }} == 'true' ]; then
         cd docs && make html
       else
-        sphinx-build docs/source docs/build -b html
+        sphinx-build docs/source docs/build -b html -W --keep-going
       fi
 
   - name: Upload the content for deployment
