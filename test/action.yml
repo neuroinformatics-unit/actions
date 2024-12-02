@@ -62,7 +62,7 @@ runs:
         fi
 
     - name: Report coverage to codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         flags: ${{ inputs.codecov-flags }}
         token: ${{ inputs.secret-codecov-token }}
