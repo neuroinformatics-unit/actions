@@ -1,6 +1,12 @@
 name: 'Check manifest'
 description: 'Check Python package manifest'
 
+inputs:
+  python-version:
+    description: 'Python version'
+    required: false
+    type: string
+    default: '3.x' # use x-ranges to specify the latest stable version of Python (for specified major version)
 
 runs:
   using: "composite"
@@ -9,7 +15,7 @@ runs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: "3.10"
+        python-version: ${{ inputs.python-version }}
     - name: Install dependencies
       shell: bash
       run: |
