@@ -72,22 +72,6 @@ steps:
 - uses: neuroinformatics-unit/actions/build_sdist_wheels@main
 ```
 
-## Upload to PyPI
-Upload distributions to PyPI.
-
-Example usage:
-```yaml
-upload_all:
-    name: Publish build distributions
-    needs: [build_sdist_wheels]
-    runs-on: ubuntu-latest
-    steps:
-    - uses: neuroinformatics-unit/actions/upload_pypi@main
-      with:
-        # Replace MY_PYPI_KEY with the name of the repository secret containing the PyPI API key
-        secret-pypi-key: ${{ secrets.MY_PYPI_KEY }}
-```
-
 ## Build Sphinx documentation
 Ensures that Sphinx docs can be built upon pushes and pull requests to any branch.
 
