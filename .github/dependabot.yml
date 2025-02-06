@@ -74,11 +74,3 @@ updates:
       actions:
         patterns:
           - "actions/*"
-  - package-ecosystem: "github-actions"
-    directory: /upload_pypi
-    schedule:
-      interval: "monthly"
-    groups:
-      actions:
-        patterns:
-          - "actions/*"
