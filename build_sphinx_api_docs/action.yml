@@ -7,11 +7,6 @@ inputs:
     required: false
     type: string
     default: '3.x'
-  fetch-tags:
-    description: 'Fetch tags'
-    required: false
-    type: boolean
-    default: false
   check-links:
     description: 'Check links'
     required: false
@@ -22,6 +17,21 @@ inputs:
     required: false
     type: boolean
     default: false
+  main-repo-fetch-tags: # Renamed to be specific to the main repo checkout
+    description: 'Fetch tags for the main repository (where workflow is run)'
+    required: false
+    type: boolean
+    default: false
+  external-repositories: # New input: list of repos to checkout
+    description: |
+      Multi-line string defining external repositories to checkout.
+      Format for each line: <repository_owner/repository_name>@<ref> <destination_path_relative_to_workspace>
+      Example:
+      brainglobe/brainglobe-atlasapi@main external/brainglobe-atlasapi
+      brainglobe/brainglobe-cellfinder@v0.4.0 external/brainglobe-cellfinder
+    required: false
+    type: string
+    default: ''
 
 runs:
   using: 'composite'
