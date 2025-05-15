@@ -107,7 +107,30 @@ runs:
 
   - name: Install dependencies
     shell: bash
-    run: python3 -m pip install -r ./docs/requirements.txt
+    run: |
+      if [ -f ./docs/requirements.txt ]; then
+        echo "Installing dependencies from ./docs/requirements.txt"
+        python3 -m pip install -r ./docs/requirements.txt
+      else
+        echo "No ./docs/requirements.txt found in main repository. Skipping."
+      fi
+
+      # Install external packages (now assumed to be checked out by step 3)
+      echo "Installing external packages in editable mode (if previously checked out):"
+      echo "${{ inputs.external-repositories }}" | while IFS= read -r line; do
+        if [[ -z "$line" ]]; then continue; fi
+        dest_path=$(echo "$line" | awk '{print $2}')
+        full_pkg_path="./$dest_path"
+        if [ -d "$full_pkg_path" ]; then
+          echo "Installing -e $full_pkg_path"
+          python3 -m pip install -e "$full_pkg_path"
+        else
+          echo "Info: Path $full_pkg_path for external package not found (may not have been specified or cloned). Skipping pip install."
+        fi
+      done
+      echo "--- Final list of installed packages ---"
+      python3 -m pip list
+      echo "---------------------------------------"
 
   - name: Check links
     if: ${{ inputs.check-links == 'true' }}
