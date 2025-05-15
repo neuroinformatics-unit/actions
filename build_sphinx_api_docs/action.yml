@@ -1,5 +1,5 @@
-name: 'Build Sphinx Docs'
-description: 'Builds sphinx docs and publishes them to GitHub Pages'
+name: 'Build Sphinx API Docs'
+description: 'Builds sphinx api docs and publishes them to GitHub Pages'
 
 inputs:
   python-version:
