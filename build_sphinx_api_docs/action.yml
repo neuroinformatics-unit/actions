@@ -36,13 +36,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
-  - uses: actions/checkout@v4
+  # 1. Checkout the main repository (where the workflow using this action is defined)
+  - name: Checkout main repository
+    uses: actions/checkout@v4
     with:
       fetch-depth: ${{ inputs.fetch-tags == 'false' && 1 || 0 }}  
       # If 0, fetch all history for all branches and tags. Default is 1 (only the latest commit).
       # The value after && needs to be truthy, hence the "inverted" conditional.
       fetch-tags: ${{ inputs.fetch-tags == 'true' }}
 
+  # 2. Setup Python (needed early if the checkout script is Python)
   - name: Setup Python
     uses: actions/setup-python@v5
     with:
@@ -63,6 +66,8 @@ runs:
     uses: actions/cache@v4
     with:
       path: ${{ steps.pip-cache.outputs.dir }}
+      # Key includes docs/requirements.txt and pyproject.toml if present
+      # for the main docs repo and potentially external packages' own files
       key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
       restore-keys: |
         ${{ runner.os }}-pip-
