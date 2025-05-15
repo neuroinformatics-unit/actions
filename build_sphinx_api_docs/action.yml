@@ -51,6 +51,39 @@ runs:
     with:
       python-version: ${{ inputs.python-version }}
 
+  # 3. Checkout external repositories
+  - name: Checkout external repositories
+    if: ${{ inputs.external-repositories != '' }}
+    shell: bash
+    run: |
+      echo "Checking out external repositories..."
+      echo "${{ inputs.external-repositories }}" | while IFS= read -r line; do
+        if [[ -z "$line" ]]; then continue; fi # Skip empty lines
+
+        # Parse the line: repo@ref path
+        repo_and_ref=$(echo "$line" | awk '{print $1}')
+        dest_path=$(echo "$line" | awk '{print $2}')
+
+        repo_owner_name=$(echo "$repo_and_ref" | cut -d'@' -f1)
+        ref=$(echo "$repo_and_ref" | cut -d'@' -f2)
+        if [[ "$repo_owner_name" == "$ref" ]]; then # If no @ref is specified, ref becomes repo name, default to main/master
+          ref="main" # Or master, or a sensible default
+        fi
+
+        echo "Cloning $repo_owner_name (ref: $ref) into $dest_path"
+        # Using GITHUB_TOKEN for private repos, or https for public
+        # fetch-depth 0 is crucial for setuptools_scm
+        git clone --depth 1 --branch "$ref" "https://x-access-token:${{ github.token }}@github.com/$repo_owner_name.git" "$dest_path" || \
+        git clone --depth 1 --branch "$ref" "https://github.com/$repo_owner_name.git" "$dest_path"
+        (cd "$dest_path" && git fetch --depth=1000000 --tags) # Attempt to deepen history for tags
+        # A more robust way for setuptools_scm would be to ensure full clone initially if possible,
+        # or use a method that doesn't rely on full history if the external packages support it.
+        # For simplicity, we'll stick to this for now but acknowledge its a common pain point.
+        # A better clone for setuptools_scm would be:
+        # git clone --branch "$ref" "https://x-access-token:${{ github.token }}@github.com/$repo_owner_name.git" "$dest_path"
+        # (cd "$dest_path" && git fetch --tags --unshallow) # If unshallow is supported/needed
+      done
+
   - name: Upgrade pip
     shell: bash
     run: |
