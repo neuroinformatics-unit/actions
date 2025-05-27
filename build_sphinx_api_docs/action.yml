@@ -99,8 +99,8 @@ runs:
     uses: actions/cache@v4
     with:
       path: ${{ steps.pip-cache.outputs.dir }}
-      # Key includes docs/requirements.txt and pyproject.toml if present
-      # for the main docs repo and potentially external packages' own files
+      # Key includes docs/requirements.txt
+      # for the main docs repo
       key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
       restore-keys: |
         ${{ runner.os }}-pip-
