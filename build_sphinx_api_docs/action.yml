@@ -1,0 +1,159 @@
+name: 'Build Sphinx API Docs'
+description: 'Builds sphinx api docs and publishes them to GitHub Pages'
+
+inputs:
+  python-version:
+    description: 'Python version'
+    required: false
+    type: string
+    default: '3.x'
+  check-links:
+    description: 'Check links'
+    required: false
+    type: boolean
+    default: true
+  use-make:
+    description: 'Use `make` with linkcheck and building html'
+    required: false
+    type: boolean
+    default: false
+  main-repo-fetch-tags: # Renamed to be specific to the main repo checkout
+    description: 'Fetch tags for the main repository (where workflow is run)'
+    required: false
+    type: boolean
+    default: false
+  external-repositories: # New input: list of repos to checkout
+    description: |
+      Multi-line string defining external repositories to checkout.
+      Format for each line: <repository_owner/repository_name>@<ref> <destination_path_relative_to_workspace>
+      Example:
+      brainglobe/brainglobe-atlasapi@main external/brainglobe-atlasapi
+      brainglobe/brainglobe-cellfinder@v0.4.0 external/brainglobe-cellfinder
+    required: false
+    type: string
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+  # 1. Checkout the main repository (where the workflow using this action is defined)
+  - name: Checkout main repository
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: ${{ inputs.fetch-tags == 'false' && 1 || 0 }}  
+      # If 0, fetch all history for all branches and tags. Default is 1 (only the latest commit).
+      # The value after && needs to be truthy, hence the "inverted" conditional.
+      fetch-tags: ${{ inputs.fetch-tags == 'true' }}
+
+  # 2. Setup Python (needed early if the checkout script is Python)
+  - name: Setup Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: ${{ inputs.python-version }}
+
+  # 3. Checkout external repositories
+  - name: Checkout external repositories
+    if: ${{ inputs.external-repositories != '' }}
+    shell: bash
+    run: |
+      echo "Checking out external repositories..."
+      echo "${{ inputs.external-repositories }}" | while IFS= read -r line; do
+        if [[ -z "$line" ]]; then continue; fi # Skip empty lines
+
+        # Parse the line: repo@ref path
+        repo_and_ref=$(echo "$line" | awk '{print $1}')
+        dest_path=$(echo "$line" | awk '{print $2}')
+
+        repo_owner_name=$(echo "$repo_and_ref" | cut -d'@' -f1)
+        ref=$(echo "$repo_and_ref" | cut -d'@' -f2)
+        if [[ "$repo_owner_name" == "$ref" ]]; then # If no @ref is specified, ref becomes repo name, default to main/master
+          ref="main" # Or master, or a sensible default
+        fi
+
+        echo "Cloning $repo_owner_name (ref: $ref) into $dest_path"
+        # Using GITHUB_TOKEN for private repos, or https for public
+        # fetch-depth 0 is crucial for setuptools_scm
+        git clone --depth 1 --branch "$ref" "https://x-access-token:${{ github.token }}@github.com/$repo_owner_name.git" "$dest_path" || \
+        git clone --depth 1 --branch "$ref" "https://github.com/$repo_owner_name.git" "$dest_path"
+        (cd "$dest_path" && git fetch --depth=1000000 --tags) # Attempt to deepen history for tags
+        # A more robust way for setuptools_scm would be to ensure full clone initially if possible,
+        # or use a method that doesn't rely on full history if the external packages support it.
+        # For simplicity, we'll stick to this for now but acknowledge its a common pain point.
+        # A better clone for setuptools_scm would be:
+        # git clone --branch "$ref" "https://x-access-token:${{ github.token }}@github.com/$repo_owner_name.git" "$dest_path"
+        # (cd "$dest_path" && git fetch --tags --unshallow) # If unshallow is supported/needed
+      done
+
+  - name: Upgrade pip
+    shell: bash
+    run: |
+      # install pip=>20.1 to use "pip cache dir"
+      python3 -m pip install --upgrade pip
+
+  - name: Get pip cache dir
+    shell: bash
+    id: pip-cache
+    run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+
+  - name: Cache dependencies
+    uses: actions/cache@v4
+    with:
+      path: ${{ steps.pip-cache.outputs.dir }}
+      # Key includes docs/requirements.txt
+      # for the main docs repo
+      key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      restore-keys: |
+        ${{ runner.os }}-pip-
+
+  - name: Install dependencies
+    shell: bash
+    run: |
+      if [ -f ./docs/requirements.txt ]; then
+        echo "Installing dependencies from ./docs/requirements.txt"
+        python3 -m pip install -r ./docs/requirements.txt
+      else
+        echo "No ./docs/requirements.txt found in main repository. Skipping."
+      fi
+
+      # Install external packages (now assumed to be checked out by step 3)
+      echo "Installing external packages in editable mode (if previously checked out):"
+      echo "${{ inputs.external-repositories }}" | while IFS= read -r line; do
+        if [[ -z "$line" ]]; then continue; fi
+        dest_path=$(echo "$line" | awk '{print $2}')
+        full_pkg_path="./$dest_path"
+        if [ -d "$full_pkg_path" ]; then
+          echo "Installing -e $full_pkg_path"
+          python3 -m pip install -e "$full_pkg_path"
+        else
+          echo "Info: Path $full_pkg_path for external package not found (may not have been specified or cloned). Skipping pip install."
+        fi
+      done
+      echo "--- Final list of installed packages ---"
+      python3 -m pip list
+      echo "---------------------------------------"
+
+  - name: Check links
+    if: ${{ inputs.check-links == 'true' }}
+    shell: bash
+    run: | 
+      if [ ${{ inputs.use-make }} == 'true' ]; then
+        cd docs && make linkcheck
+      else
+        sphinx-build docs/source docs/build -b linkcheck
+      fi
+
+  # needs to have sphinx.ext.githubpages in conf.py extensions list
+  - name: Building documentation
+    shell: bash
+    run: | 
+      if [ ${{ inputs.use-make }} == 'true' ]; then
+        cd docs && make html
+      else
+        sphinx-build docs/source docs/build -b html --keep-going
+      fi
+
+  - name: Upload the content for deployment
+    uses: actions/upload-artifact@v4
+    with:
+      name: docs-build
+      path: ./docs/build/
