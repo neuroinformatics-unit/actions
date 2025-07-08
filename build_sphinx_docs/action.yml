@@ -105,5 +105,6 @@ runs:
 
   - name: Add preview link to summary
     if: ${{ inputs.use-artifact-ci == 'true' }}
+    shell: bash
     run: |
       echo 'Preview: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}' >> $GITHUB_STEP_SUMMARY
