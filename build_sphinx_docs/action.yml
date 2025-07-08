@@ -29,6 +29,11 @@ inputs:
     default: false
     # See https://www.artifact.ci/advanced
 
+outputs:
+  artifactci-run-url:
+    description: "Artifact CI run URL"
+    value: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}
+
 runs:
   using: 'composite'
   steps:
