@@ -112,15 +112,12 @@ runs:
     if: ${{ inputs.use-artifactci == 'true' }}
     shell: bash
     run: |
-      echo "All outputs from artifactci-upload step:"
-      # echo "${{ toJSON(steps.artifactci-upload.outputs) }}"
       echo "Artifact CI run URL: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}"
       echo "Artifact CI run URL: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}"
 
 
-  # - name: Add preview link to summary
-  #   if: ${{ inputs.use-artifactci == 'true' }}
-  #   shell: bash
-  #   run: |
-  #     echo 'Preview URL: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}' >> $GITHUB_OUTPUT
-  #     echo 'Preview URL: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}' >> $GITHUB_STEP_SUMMARY
+  - name: Add preview link to summary
+    if: ${{ inputs.use-artifactci == 'true' }}
+    shell: bash
+    run: |
+      echo 'Preview URL: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}' >> $GITHUB_STEP_SUMMARY
