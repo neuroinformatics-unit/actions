@@ -99,7 +99,7 @@ runs:
     id: artifactci-upload
     uses: mmkal/artifact.ci/upload@main
     with:
-      name: docs-build-artifact-ci
+      name: docs-build
       path: ./docs/build/
       artifactci-mode: eager
 
