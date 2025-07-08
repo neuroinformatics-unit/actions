@@ -22,7 +22,7 @@ inputs:
     required: false
     type: boolean
     default: false
-  use-artifact-ci:
+  use-artifactci:
     description: 'Replace artifact upload step with artifact.ci'
     required: false
     type: boolean
@@ -88,14 +88,14 @@ runs:
       fi
 
   - name: Upload the content for deployment
-    if: ${{ inputs.use-artifact-ci == 'false' }}
+    if: ${{ inputs.use-artifactci == 'false' }}
     uses: actions/upload-artifact@v4
     with:
       name: docs-build
       path: ./docs/build/
 
   - name: Upload the content for deployment using artifact.ci
-    if: ${{ inputs.use-artifact-ci == 'true' }}
+    if: ${{ inputs.use-artifactci == 'true' }}
     id: artifactci-upload
     uses: mmkal/artifact.ci/upload@main
     with:
@@ -103,8 +103,16 @@ runs:
       path: ./docs/build/
       artifactci-mode: eager
 
-  - name: Add preview link to summary
-    if: ${{ inputs.use-artifact-ci == 'true' }}
+  - name: Debug outputs
+    if: ${{ inputs.use-artifactci == 'true' }}
     shell: bash
     run: |
-      echo 'Preview: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}' >> $GITHUB_STEP_SUMMARY
+      echo "All outputs from artifactci-upload step:"
+      echo "${{ toJSON(steps.artifactci-upload.outputs) }}"
+
+  # - name: Add preview link to summary
+  #   if: ${{ inputs.use-artifactci == 'true' }}
+  #   shell: bash
+  #   run: |
+  #     echo 'Preview URL: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}' >> $GITHUB_OUTPUT
+  #     echo 'Preview URL: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}' >> $GITHUB_STEP_SUMMARY
