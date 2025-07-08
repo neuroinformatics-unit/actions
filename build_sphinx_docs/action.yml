@@ -96,10 +96,14 @@ runs:
 
   - name: Upload the content for deployment using artifact.ci
     if: ${{ inputs.use-artifact-ci == 'true' }}
+    id: artifactci-upload
     uses: mmkal/artifact.ci/upload@main
     with:
       name: docs-build-artifact-ci
       path: ./docs/build/
       artifactci-mode: eager
+
+  - name: Add preview link to summary
+    if: ${{ inputs.use-artifact-ci == 'true' }}
     run: |
-      echo 'Preview: ${{ steps.report.outputs.artifactci_run_url }}' >> $GITHUB_STEP_SUMMARY
+      echo 'Preview: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}' >> $GITHUB_STEP_SUMMARY
