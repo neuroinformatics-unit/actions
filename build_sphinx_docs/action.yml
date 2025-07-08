@@ -32,7 +32,7 @@ inputs:
 outputs:
   artifactci-run-url:
     description: "Artifact CI run URL"
-    value: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}
+    value: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}
 
 runs:
   using: 'composite'
@@ -114,7 +114,7 @@ runs:
     run: |
       echo "All outputs from artifactci-upload step:"
       # echo "${{ toJSON(steps.artifactci-upload.outputs) }}"
-      echo "Artifact CI run URL: ${{ steps.artifactci-upload.outputs.artifactci_run_url }}"
+      echo "Artifact CI run URL: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}"
       echo "Artifact CI run URL: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}"
 
 
