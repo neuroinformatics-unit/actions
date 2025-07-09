@@ -30,9 +30,8 @@ inputs:
     # See https://www.artifact.ci/advanced
 
 outputs:
-  artifactci-run-url:
-    description: "Artifact CI run URL"
-    value: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}
+  artifactci-run-url: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}
+  artifactci-entrypoint-0: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}
 
 runs:
   using: 'composite'
@@ -107,3 +106,11 @@ runs:
       name: docs-build
       path: ./docs/build/
       artifactci-mode: eager
+
+  # - name: Expose artifact.ci relevant outputs
+  #   if: ${{ inputs.use-artifactci == 'true' }}
+  #   needs: artifactci-upload
+  #   shell: bash
+  #   run: |
+  #     echo "${{ steps.artifactci-upload.outputs.artifactci-run-url }}" >> $GITHUB_OUTPUT
+  #     echo "${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}" >> $GITHUB_OUTPUT
