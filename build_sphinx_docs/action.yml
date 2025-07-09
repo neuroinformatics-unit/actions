@@ -107,17 +107,3 @@ runs:
       name: docs-build
       path: ./docs/build/
       artifactci-mode: eager
-
-  - name: Debug outputs
-    if: ${{ inputs.use-artifactci == 'true' }}
-    shell: bash
-    run: |
-      echo "Artifact CI run URL: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}"
-      echo "Artifact CI run URL: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}"
-
-
-  - name: Add preview link to summary
-    if: ${{ inputs.use-artifactci == 'true' }}
-    shell: bash
-    run: |
-      echo 'Preview URL: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}' >> $GITHUB_STEP_SUMMARY
