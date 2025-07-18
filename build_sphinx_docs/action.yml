@@ -109,4 +109,4 @@ runs:
     with:
       name: docs-build
       path: ./docs/build/
-      artifactci-mode: eager
+      artifactci-mode: lazy
