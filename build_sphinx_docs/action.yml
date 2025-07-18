@@ -22,6 +22,12 @@ inputs:
     required: false
     type: boolean
     default: false
+  use-artifactci:
+    description: 'Replace artifact upload step with artifact.ci'
+    required: false
+    type: boolean
+    default: false
+    # See https://www.artifact.ci/advanced
 
 runs:
   using: 'composite'
@@ -82,7 +88,23 @@ runs:
       fi
 
   - name: Upload the content for deployment
+    if: ${{ inputs.use-artifactci == 'false' }}
     uses: actions/upload-artifact@v4
     with:
       name: docs-build
       path: ./docs/build/
+
+  - name: Upload the content for deployment using artifact.ci
+    if: ${{ inputs.use-artifactci == 'true' }}
+    id: artifactci-upload
+    uses: mmkal/artifact.ci/upload@main
+    with:
+      name: docs-build
+      path: ./docs/build/
+  
+  - name: Print docs preview URL to step summary
+    if: ${{ inputs.use-artifactci == 'true' }}
+    shell: bash
+    run: |
+      echo "Preview docs at ${{ steps.artifactci-upload.outputs.artifactci-run-url }}, " >> $GITHUB_STEP_SUMMARY
+      echo "under the _Detected Entrypoints_ section (requires GitHub sign-in)" >> $GITHUB_STEP_SUMMARY
