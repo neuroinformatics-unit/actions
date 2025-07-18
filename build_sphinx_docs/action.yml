@@ -109,4 +109,9 @@ runs:
     with:
       name: docs-build
       path: ./docs/build/
-      artifactci-mode: eager
+  
+  - name: Print docs preview URL to step summary
+    if: ${{ inputs.use-artifactci == 'true' }}
+    shell: bash
+    run: |
+      echo "Preview docs at: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}" >> $GITHUB_STEP_SUMMARY
