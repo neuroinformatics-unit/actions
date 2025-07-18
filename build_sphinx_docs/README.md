@@ -13,6 +13,7 @@ The various steps include:
   * (default) using `sphinx-build` to build the pages from `docs/source` (should contain Sphinx source files) to `docs/build`
   * (`use-make: true`) using the `make` utility with a custom `docs/Makefile` to build the pages from `SOURCEDIR` to `BUILDDIR` as defined in the Makefile
 * uploading the built html pages as an artifact named `docs-build`, for use in other actions
+  * we can optionally upload the artifact using [artifact.ci](https://github.com/mmkal/artifact.ci) instead, by setting the `use-artifactci` input to `true` (default: `false`). This will upload the artifact to a public URL and allow us to preview the docs. The link to the preview is printed to the step summary.
 
 It can be run upon all pull requests, to ensure that documentation still builds.
 
