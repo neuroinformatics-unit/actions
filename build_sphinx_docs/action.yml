@@ -29,14 +29,6 @@ inputs:
     default: false
     # See https://www.artifact.ci/advanced
 
-outputs:
-  artifactci-run-url:
-    description: "Artifact.ci URL for the workflow run"
-    value: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}
-  artifactci-entrypoint-0:
-    description: "Artifact.ci entrypoint URL"
-    value: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}
-
 runs:
   using: 'composite'
   steps:
