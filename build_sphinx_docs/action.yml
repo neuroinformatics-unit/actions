@@ -106,4 +106,5 @@ runs:
     if: ${{ inputs.use-artifactci == 'true' }}
     shell: bash
     run: |
-      echo "Preview docs at: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}" >> $GITHUB_STEP_SUMMARY
+      echo "Preview docs at ${{ steps.artifactci-upload.outputs.artifactci-run-url }}, " >> $GITHUB_STEP_SUMMARY
+      echo "under the _Detected Entrypoints_ section (requires GitHub sign-in)" >> $GITHUB_STEP_SUMMARY
