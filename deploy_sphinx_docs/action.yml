@@ -12,6 +12,13 @@ inputs:
     required: false
     type: boolean
     default: false
+  use-artifactci:
+    description: |
+      Specify whether the artifact was uploaded by artifact.ci,
+      to ensure that its contents are moved to the correct publish directory
+    required: false
+    type: boolean
+    default: false
 
 runs:
   using: 'composite'
@@ -28,6 +35,15 @@ runs:
     with:
       name: docs-build
       path: ./docs/build
+
+  # If this was downloaded from artifact.ci, the content will be nested
+  # in ./docs/build/docs/build/, so we need to fix that.
+  - name: Move the content to the correct directory
+    if: ${{ inputs.use-artifactci == 'true' }}
+    shell: bash
+    run: |
+      mv ./docs/build/docs/build/* ./docs/build/
+      rm -rf ./docs/build/docs
 
   - name: Deploy
     env: 
