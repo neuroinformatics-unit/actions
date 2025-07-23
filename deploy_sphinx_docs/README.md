@@ -11,3 +11,6 @@ The `use-make` input is optional and defaults to `false`.
 As this input helps to identify the location of the built documentation for deployment, it should match the `use-make` value specified in the [Build Sphinx Docs action](../build_sphinx_docs/README.md).
 If set to `true`, it is assumed that the documentation is built using `make` and the `./docs/build/html` directory will be used as the publish directory. 
 If set to `false`, the `./docs/build/` directory will be used instead.
+
+The `use-artifactci` input is optional and defaults to `false`.
+As this input helps to parse the contents of the downloaded artifact, it should match the `use-artifactci` value specified in the [Build Sphinx Docs action](../build_sphinx_docs/README.md).
