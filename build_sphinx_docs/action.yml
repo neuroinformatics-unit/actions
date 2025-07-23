@@ -23,10 +23,10 @@ inputs:
     type: boolean
     default: false
   use-artifactci:
-    description: 'Replace artifact upload step with artifact.ci'
+    description: 'Set to "lazy" or "eager" to use artifact.ci with the specified mode; "false" uses actions/upload-artifact.'
     required: false
-    type: boolean
-    default: false
+    type: string
+    default: 'false'
     # See https://www.artifact.ci/advanced
 
 runs:
@@ -95,18 +95,16 @@ runs:
       path: ./docs/build/
 
   - name: Upload the content for deployment using artifact.ci
-    if: ${{ inputs.use-artifactci == 'true' }}
+    if: ${{ inputs.use-artifactci != 'false' }}
     id: artifactci-upload
     uses: mmkal/artifact.ci/upload@main
     with:
       name: docs-build
       path: ./docs/build/
-      artifactci-mode: ${{ 
-        ((github.event_name == 'push' && github.ref_type == 'tag') || 
-         github.event_name == 'workflow_dispatch') && 'eager' || 'lazy' 
-      }} 
+      artifactci-mode: ${{ inputs.use-artifactci }} 
+
   - name: Print docs preview URL to step summary
-    if: ${{ inputs.use-artifactci == 'true' }}
+    if: ${{ inputs.use-artifactci != 'false' }}
     shell: bash
     run: |
       echo "Preview docs at ${{ steps.artifactci-upload.outputs.artifactci-run-url }}, " >> $GITHUB_STEP_SUMMARY
