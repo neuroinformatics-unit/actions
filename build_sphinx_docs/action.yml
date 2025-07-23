@@ -100,7 +100,7 @@ runs:
     uses: mmkal/artifact.ci/upload@main
     with:
       name: docs-build
-      path: .
+      path: ./docs/build/
       artifactci-mode: ${{ inputs.use-artifactci }} 
 
   - name: Print docs preview URL to step summary
