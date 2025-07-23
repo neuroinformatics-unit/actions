@@ -15,9 +15,10 @@ The various steps include:
 * uploading the built html pages as an artifact named `docs-build`, for use in other actions
   * by default, the artifact is uploaded using [actions/upload-artifact](https://github.com/actions/upload-artifact)
   * alternatively, if the [artifact.ci](artifact.ci) GitHub app is installed in your repository,
-    you can upload the artifact using artifact.ci by setting the `use-artifactci` input to `true` (default: `false`). 
-    This will upload the artifact to a public URL on which the docs can be previewed.
-    The URL to the preview is printed to the GitHub Actions summary.
+  you can upload the artifact using artifact.ci by setting the `use-artifactci` input to `lazy` or `eager` (default: `false`). 
+  Using the `eager` mode will upload the files within the artifact immediately, whereas the `lazy` mode will not upload the files until a logged-in user visits the URL.
+  Once the artifact is uploaded, a public URL is generated for the artifact, which can be used to preview the documentation.
+  The URL to the preview is printed to the GitHub Actions summary.
 
 It can be run upon all pull requests, to ensure that documentation still builds.
 
