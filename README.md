@@ -93,6 +93,8 @@ The `check-links` input is also optional and defaults to `true`. If set to `true
 
 The `use-make` input is optional and defaults to `false`. If set to `true`, the action will use the `make` utility with a custom `docs/Makefile` to build the pages from `SOURCEDIR` to `BUILDDIR` as defined in the Makefile. If set to `false`, the action will use `sphinx-build` to build the pages from `docs/source` to `docs/build`.
 
+The `use-artifactci` input is optional and defaults to `false`. If set to `true`, the action will use [artifact.ci](https://www.artifact.ci/) to upload the built documentation as an artifact. This is useful for pre-viewing the docs on pull requests, but requires the `artifact.ci` app to be enabled for the target repository.
+
 ## Publish Sphinx documentation
 Deploys pre-built documentation to GitHub Pages.
 
@@ -112,6 +114,8 @@ deploy_sphinx_docs:
       use-make: false
 ```
 The `use-make` input is optional and defaults to `false`. If set to `true`, the action will assume that the Sphinx documentation is built using `make` and will use the `./docs/build/html` directory as the publish directory. If set to `false`, it will use the `./docs/build/` directory instead. 
+
+The `use-artifactci` input is optional and defaults to `false`. If set to `true`, the action will assume that the artifact was uploaded using [artifact.ci](https://www.artifact.ci/) and enable an additional step to move the contents of the artifact to the correct publish directory.
 
 ## Full Workflows
 * An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).
