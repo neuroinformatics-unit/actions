@@ -101,7 +101,10 @@ runs:
     with:
       name: docs-build
       path: ./docs/build/
-  
+      artifactci-mode: ${{ 
+        ((github.event_name == 'push' && github.ref_type == 'tag') || 
+         github.event_name == 'workflow_dispatch') && 'eager' || 'lazy' 
+      }} 
   - name: Print docs preview URL to step summary
     if: ${{ inputs.use-artifactci == 'true' }}
     shell: bash
