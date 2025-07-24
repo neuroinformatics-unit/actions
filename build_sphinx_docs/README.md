@@ -16,9 +16,8 @@ The various steps include:
   * by default, the artifact is uploaded using [actions/upload-artifact](https://github.com/actions/upload-artifact)
   * alternatively, if the [artifact.ci](artifact.ci) GitHub app is installed in your repository,
   you can upload the artifact using artifact.ci by setting the `use-artifactci` input to `lazy` or `eager` (default: `false`). 
-  Using the `eager` mode will upload the files within the artifact immediately, whereas the `lazy` mode will not upload the files until a logged-in user visits the URL.
-  Once the artifact is uploaded, a public URL is generated for the artifact, which can be used to preview the documentation.
-  The URL to the preview is printed to the GitHub Actions summary.
+    * `lazy` mode: The URL to generate the docs preview will be printed to the GitHub Actions summary, but the docs preview will not be available until a logged-in user visits the URL to trigger the upload. This avoids uploading the artifact to artifact.ci unnecessarily, especially if the action is run on every commit.
+    * `eager` mode: The docs preview will be uploaded immediately, and the URL to the docs preview will be printed to the GitHub Actions summary.
 
 It can be run upon all pull requests, to ensure that documentation still builds.
 
