@@ -110,10 +110,6 @@ runs:
       if [ "${{ inputs.use-artifactci }}" == "lazy" ]; then
         echo "Preview docs at ${{ steps.artifactci-upload.outputs.artifactci-run-url }}, " >> $GITHUB_STEP_SUMMARY
         echo "under the _Detected Entrypoints_ section (requires GitHub sign-in)" >> $GITHUB_STEP_SUMMARY
-      elif [ "${{ inputs.use-artifactci }}" == "eager" ]; then
-        if [ "${{ inputs.use-make }}" == "true" ]; then
-          echo "Preview docs at: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}/html/index.html" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "Preview docs at: ${{ steps.artifactci-upload.outputs.artifactci-run-url }}/index.html" >> $GITHUB_STEP_SUMMARY
-        fi
+      else
+        echo "Preview docs at: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}" >> $GITHUB_STEP_SUMMARY
       fi
