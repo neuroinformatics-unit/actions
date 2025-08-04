@@ -13,7 +13,11 @@ The various steps include:
   * (default) using `sphinx-build` to build the pages from `docs/source` (should contain Sphinx source files) to `docs/build`
   * (`use-make: true`) using the `make` utility with a custom `docs/Makefile` to build the pages from `SOURCEDIR` to `BUILDDIR` as defined in the Makefile
 * uploading the built html pages as an artifact named `docs-build`, for use in other actions
-  * we can optionally upload the artifact using [artifact.ci](https://github.com/mmkal/artifact.ci) instead, by setting the `use-artifactci` input to `true` (default: `false`). This will upload the artifact to a public URL and allow us to preview the docs. The link to the preview is printed to the GitHub Actions summary.
+  * by default, the artifact is uploaded using [actions/upload-artifact](https://github.com/actions/upload-artifact)
+  * alternatively, if the [artifact.ci](artifact.ci) GitHub app is installed in your repository,
+  you can upload the artifact using artifact.ci by setting the `use-artifactci` input to `lazy` or `eager`. By default, it is set to `false` (i.e., the GitHub `upload-artifact` action is used). When either `lazy` or `eager` is used, the URL to the docs preview is printed to the GitHub Actions summary, with a slight difference between them:
+      * in `lazy` mode, the docs are only uploaded to artifact.ci when a logged-in user visits the URL. This avoids unnecessary uploads to artifact.ci (e.g. if the action is run on every commit, we may not need to visualise the docs in each of them), but it means waiting for a couple of minutes for the docs to be ready to view.
+      * in `eager` mode, the docs are uploaded immediately to the URL every time the action runs. Clicking the URL in the summary will take you directly to the docs preview.
 
 It can be run upon all pull requests, to ensure that documentation still builds.
 
