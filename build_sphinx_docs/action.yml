@@ -97,6 +97,7 @@ runs:
   - name: Upload the content for deployment using artifact.ci
     if: ${{ inputs.use-artifactci != 'false' }}
     id: artifactci-upload
+    # Using fork until https://github.com/mmkal/artifact.ci/issues/10 is resolved
     uses: neuroinformatics-unit/artifact.ci/upload@upload-root-dir
     with:
       name: docs-build
