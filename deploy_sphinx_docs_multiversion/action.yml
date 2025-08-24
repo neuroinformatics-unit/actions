@@ -18,7 +18,6 @@ inputs:
     required: true
 
 runs:
-  if: (github.event_name == 'push' && github.ref_type == 'tag')
   using: 'composite'
   steps:
   - name: Checkout repository
@@ -48,6 +47,10 @@ runs:
       # Detect if this is a release or from the main branch
       echo "Event name: ${{ github.event_name }}"
       echo "Ref type: ${{ github.ref_type }}"
+      if [ "${{ github.event_name }}" != "push" ] || [ "${{ github.ref_type }}" != "tag" ]; then
+        echo "This step must only run on tag pushes!"
+        exit 1
+      fi  
       version="${GITHUB_REF#refs/*/}"
       echo "Deploying version: $version"
       # Make the new commit message. Needs to happen before cd into deploy
