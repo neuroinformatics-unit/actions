@@ -95,7 +95,7 @@ runs:
 
       SWITCHER_FILE="${version}/_static/switcher.json"
       if [ ! -f "$SWITCHER_FILE" ]; then
-        mkdir -p "$(dirname "$SWITCHER_FILE")"
+        echo "Creating switcher file for switcher.json"
         touch "$SWITCHER_FILE"
       fi
       echo "$UPDATED_SWITCHER_CONTENT" > "$SWITCHER_FILE"
