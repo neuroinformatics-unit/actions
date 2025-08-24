@@ -87,7 +87,7 @@ runs:
         # File does not exist, initialize with current version as latest and cleanup gh-pages
         # TODO: Clean this up post first release
         rm -rf *
-        BASE_URL="https://movement.neuroinformatics.dev/"
+        BASE_URL="https://animeshsasan.github.io/sphinx-deployment-test"
         NEW_URL="${BASE_URL}/latest"
         UPDATED_SWITCHER_CONTENT=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
           '[{name: $name, version: $version, url: $url}]')
