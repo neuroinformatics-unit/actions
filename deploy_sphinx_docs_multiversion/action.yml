@@ -73,7 +73,7 @@ runs:
         # File exists, fetch and update
         SWITCHER_CONTENT=$(curl "$SWITCHER_URL")
         BASE_URL="$(jq -r '.[0].url|split("/")[0:-1]|join("/")' <<< $SWITCHER_CONTENT)"
-        NEW_URL="${BASE_URL}/latest/"
+        NEW_URL="${BASE_URL}/latest"
         CURRENT_LATEST_VERSION=$(echo $(jq '.[0].version' <<< "${SWITCHER_CONTENT}") | tr -d '"')
         UPDATED_CURRENT_LATEST_ENTRY=$(jq --arg url "${BASE_URL}/${CURRENT_LATEST_VERSION}" '.[0] | .url = $url | del(.name)' <<< "$SWITCHER_CONTENT")
         NEW_ENTRY=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
@@ -84,7 +84,7 @@ runs:
         # TODO: Clean this up post first release
         rm -rf *
         BASE_URL="https://movement.neuroinformatics.dev/"
-        NEW_URL="${BASE_URL}/latest/"
+        NEW_URL="${BASE_URL}/latest"
         UPDATED_SWITCHER_CONTENT=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
           '[{name: $name, version: $version, url: $url}]')
       fi
