@@ -84,9 +84,8 @@ runs:
           '{name: $name, version: $version, url: $url}')
         UPDATED_SWITCHER_CONTENT=$(jq --argjson new_entry "$NEW_ENTRY" --argjson updated_current_latest "$UPDATED_CURRENT_LATEST_ENTRY" '[$new_entry, $updated_current_latest] + .[1:]' <<< "$SWITCHER_CONTENT")
       else
-        # File does not exist, initialize with current version as latest and cleanup gh-pages
+        # File does not exist, initialize with current version as latest
         # TODO: Clean this up post first release
-        rm -rf *
         BASE_URL="https://animeshsasan.github.io/sphinx-deployment-test"
         NEW_URL="${BASE_URL}/latest"
         UPDATED_SWITCHER_CONTENT=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
