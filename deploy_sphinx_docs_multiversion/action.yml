@@ -86,7 +86,7 @@ runs:
       else
         # File does not exist, initialize with current version as latest
         # TODO: Clean this up post first release
-        BASE_URL="https://animeshsasan.github.io/sphinx-deployment-test"
+        BASE_URL="https://movement.neuroinformatics.dev"
         NEW_URL="${BASE_URL}/latest"
         UPDATED_SWITCHER_CONTENT=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
           '[{name: $name, version: $version, url: $url}]')
