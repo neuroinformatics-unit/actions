@@ -43,6 +43,7 @@ runs:
       fetch-depth: 0
 
   - name: Push the built HTML to gh-pages
+    shell: bash 
     run: |
       # Detect if this is a release or from the main branch
       echo "Event name: ${{ github.event_name }}"
