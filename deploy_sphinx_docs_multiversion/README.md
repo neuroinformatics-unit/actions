@@ -3,10 +3,10 @@ This composite GitHub Action deploys pre-built Sphinx documentation to the gh-pa
 The docs are then published (by default at `https://<username>.github.io/<repo>/<version>`, unless specified otherwise in `docs/source/conf.py`).
 
 ## Features
-* Removs any previous builds, if present in `docs/build`
+* Removes any previous builds, if present in `docs/build`
 * Downloads the built html pages (artifact named `docs-build`) into the `docs/build` folder (see the [Build Sphinx Docs action](../build_sphinx_docs/README.md))
 * Pushes the built HTML pages to the gh-pages branch under the correct version
-* Updats switcher.json to mark the new version as latest
+* Updates switcher.json to mark the new version as latest
 * Maintains a latest symlink for convenience
 
 ## Inputs
