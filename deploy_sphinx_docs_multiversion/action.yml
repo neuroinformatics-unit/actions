@@ -94,6 +94,10 @@ runs:
       fi
 
       SWITCHER_FILE="${version}/_static/switcher.json"
+      if [ ! -f "$SWITCHER_FILE" ]; then
+        mkdir -p "$(dirname "$SWITCHER_FILE")"
+        touch "$SWITCHER_FILE"
+      fi
       echo "$UPDATED_SWITCHER_CONTENT" > "$SWITCHER_FILE"
       echo "${version}/_static/switcher.json has been updated successfully."
       # Update the 'latest' symlink to point to the current version
