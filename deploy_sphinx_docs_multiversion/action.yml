@@ -69,7 +69,8 @@ runs:
       else
         BUILD_DIR="../docs/build"
       fi
-      cp -Rvf $BUILD_DIR ${version}/
+      mkdir -p  ${version}
+      cp -Rvf ${BUILD_DIR}/ ${version}/
 
       SWITCHER_URL="${{ inputs.switcher_url }}"
       echo -e "\nUpdating switcher.json at ${SWITCHER_URL} for version ${version}."
