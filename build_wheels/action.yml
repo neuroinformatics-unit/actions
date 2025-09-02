@@ -4,7 +4,7 @@ description: 'Build Python package wheels using cibuildwheel.'
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Build wheels
       # Configuration of cibuildwheel is done in pyproject.toml
