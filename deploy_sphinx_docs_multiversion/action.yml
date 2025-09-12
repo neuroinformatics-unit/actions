@@ -69,9 +69,7 @@ runs:
       touch .nojekyll
 
       #Add redirection from root url to latest
-      cat > index.html <<'EOF'
-      <meta http-equiv="Refresh" content="0;url=latest/index.html"/>
-      EOF
+      echo '<meta http-equiv="Refresh" content="0;url=latest/index.html"/>' > index.html
 
       # Delete all the files and replace with our new  set
       echo -e "\nRemoving old files from previous builds of ${version}:"
@@ -82,6 +80,8 @@ runs:
         BUILD_DIR="../docs/build/html"
       else
         BUILD_DIR="../docs/build"
+      fi
+      
       cp -Rvf $BUILD_DIR ${version}/
 
       SWITCHER_URL="${{ inputs.switcher-url }}"
