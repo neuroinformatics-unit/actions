@@ -14,8 +14,9 @@ The docs are then published (by default at `https://<username>.github.io/<repo>/
 | Name           | Required | Type    | Default | Description |
 |----------------|----------|---------|---------|-------------|
 | `secret_input` | ✅ Yes   | string  | —       | The GitHub token used for authentication. |
-| `switcher_url` | ✅ Yes   | string  | —       | URL of the `switcher.json` file, which will be updated with the new version info. |
+| `switcher-url` | ✅ Yes   | string  | —       | URL of the `switcher.json` file, which will be updated with the new version info. |
 | `use-make`     | ❌ No    | boolean | `false` | Whether the docs were built with `make`. If `true`, deploys from `./docs/build/html`; otherwise from `./docs/build`. |
+| `base-url`    | ❌ No   | string | ""     | The URL to be used as the base-url for the initialising the switcher.json file.   |
 
 > ⚠️ Make sure the value of `use-make` matches what was used in the [Build Sphinx Docs action](../build_sphinx_docs/README.md), otherwise deployment may fail.
 

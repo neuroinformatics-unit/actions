@@ -12,10 +12,15 @@ inputs:
     required: false
     type: boolean
     default: false
-  switcher_url:
+  switcher-url:
     description: |
       The URL to the switcher.json file that will be updated with the new version.
     required: true
+  base-url:
+    description: |
+      The URL to be used as the base-url for the initialising the switcher.json file.
+    required: false
+    default: ""
 
 runs:
   using: 'composite'
@@ -46,70 +51,113 @@ runs:
     shell: bash 
     run: |
       # Detect if this is a release or from the main branch
-      echo "Event name: ${{ github.event_name }}"
-      echo "Ref type: ${{ github.ref_type }}"
-      if [ "${{ github.event_name }}" != "push" ] || [ "${{ github.ref_type }}" != "tag" ]; then
-        echo "This step must only run on tag pushes!"
-        exit 1
-      fi  
-      version="${GITHUB_REF#refs/*/}"
-      echo "Deploying version: $version"
-      # Make the new commit message. Needs to happen before cd into deploy
-      # to get the right commit hash.
-      message="Deploy $version from $(git rev-parse --short HEAD)"
-      cd deploy
-      # Need to have this file so that Github doesn't try to run Jekyll
-      touch .nojekyll
-      # Delete all the files and replace with our new  set
-      echo -e "\nRemoving old files from previous builds of ${version}:"
-      rm -rvf ${version}
-      echo -e "\nCopying HTML files to ${version}:"
-      if [[ "${{ inputs.use-make }}" == "true" ]]; then
-        BUILD_DIR="../docs/build/html"
-      else
-        BUILD_DIR="../docs/build"
-      fi
-      cp -Rvf $BUILD_DIR ${version}/
+        echo "Event name: ${{ github.event_name }}"
+        echo "Ref type: ${{ github.ref_type }}"
+        if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref_type }}" = "tag" ]; then
+            # Get the tag name without the "refs/tags/" part
+            version="${GITHUB_REF#refs/*/}"
+        else
+            version=dev
+        fi
 
-      SWITCHER_URL="${{ inputs.switcher_url }}"
-      echo -e "\nUpdating switcher.json at ${SWITCHER_URL} for version ${version}."
-      if curl --output /dev/null --silent --head --fail "$SWITCHER_URL"; then
-        # File exists, fetch and update
-        SWITCHER_CONTENT=$(curl "$SWITCHER_URL")
-        BASE_URL="$(jq -r '.[0].url|split("/")[0:-1]|join("/")' <<< $SWITCHER_CONTENT)"
-        NEW_URL="${BASE_URL}/latest"
-        CURRENT_LATEST_VERSION=$(echo $(jq '.[0].version' <<< "${SWITCHER_CONTENT}") | tr -d '"')
-        UPDATED_CURRENT_LATEST_ENTRY=$(jq --arg url "${BASE_URL}/${CURRENT_LATEST_VERSION}" '.[0] | .url = $url | del(.name)' <<< "$SWITCHER_CONTENT")
-        NEW_ENTRY=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
-          '{name: $name, version: $version, url: $url}')
-        UPDATED_SWITCHER_CONTENT=$(jq --argjson new_entry "$NEW_ENTRY" --argjson updated_current_latest "$UPDATED_CURRENT_LATEST_ENTRY" '[$new_entry, $updated_current_latest] + .[1:]' <<< "$SWITCHER_CONTENT")
-      else
-        # File does not exist, initialize with current version as latest
-        # TODO: Clean this up post first release
-        BASE_URL="https://movement.neuroinformatics.dev"
-        NEW_URL="${BASE_URL}/latest"
-        UPDATED_SWITCHER_CONTENT=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
-          '[{name: $name, version: $version, url: $url}]')
-      fi
+        echo "Deploying version: $version"
+        # Make the new commit message. Needs to happen before cd into deploy
+        # to get the right commit hash.
+        message="Deploy $version from $(git rev-parse --short HEAD)"
+        cd deploy
+        # Need to have this file so that Github doesn't try to run Jekyll
+        touch .nojekyll
 
-      SWITCHER_FILE="${version}/_static/switcher.json"
-      echo "$UPDATED_SWITCHER_CONTENT" > "$SWITCHER_FILE"
-      echo "${version}/_static/switcher.json has been updated successfully."
-      # Update the 'latest' symlink to point to the current version
-      echo -e "\nSetup link from ${version} to 'latest'."
-      rm -f latest
-      ln -sf ${version} latest
-      # Stage the commit
-      git add -A .
-      echo -e "\nChanges to be applied:"
-      git status
-      # Configure git to be the GitHub Actions account
-      git config user.email "github-actions[bot]@users.noreply.github.com"
-      git config user.name "github-actions[bot]"
-      echo -e "\nMaking a new commit:"
-      git commit -m "$message"
-      # Make the push quiet just in case there is anything that could leak
-      # sensitive information.
-      echo -e "\nPushing changes to gh-pages."
-      git push -fq origin gh-pages 2>&1 >/dev/null
-      echo -e "\nFinished uploading generated files."
+        #Add redirection from root url to latest
+        cat > index.html <<'EOF'
+        <meta http-equiv="Refresh" content="0;url=latest/index.html"/>
+        EOF
+
+        # Delete all the files and replace with our new  set
+        echo -e "\nRemoving old files from previous builds of ${version}:"
+        rm -rvf ${version}
+        echo -e "\nCopying HTML files to ${version}:"
+
+        if [[ "${{ inputs.use-make }}" == "true" ]]; then
+          BUILD_DIR="../docs/build/html"
+        else
+          BUILD_DIR="../docs/build"
+        cp -Rvf $BUILD_DIR ${version}/
+
+        SWITCHER_URL=${{ inputs.switcher-url }}
+        
+        if curl --output /dev/null --silent --head --fail "$SWITCHER_URL"; then
+          if [[ "${version}" != "dev" ]]; then
+            echo -e "\nUpdating switcher.json at ${SWITCHER_URL} for version ${version}."
+            # File exists, fetch and update
+            SWITCHER_CONTENT=$(curl "$SWITCHER_URL")
+            BASE_URL="$(jq -r '.[1].url|split("/")[0:-1]|join("/")' <<< $SWITCHER_CONTENT)"
+            NEW_URL="${BASE_URL}/latest"
+
+            # Extract the current dev entry
+            DEV_ENTRY=$(jq '.[0]' <<< "${SWITCHER_CONTENT}")
+
+            CURRENT_LATEST_VERSION=$(echo $(jq '.[1].version' <<< "${SWITCHER_CONTENT}") | tr -d '"')
+            UPDATED_CURRENT_LATEST_ENTRY=$(jq --arg url "${BASE_URL}/${CURRENT_LATEST_VERSION}" '.[1] | .url = $url | del(.name)' <<< "$SWITCHER_CONTENT")
+            
+            # Create the new version entry with the "latest" tag
+            NEW_ENTRY=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
+              '{name: $name, version: $version, url: $url}')
+
+            # Combine the entries in the desired order
+            UPDATED_SWITCHER_CONTENT=$(jq --argjson dev_entry "$DEV_ENTRY" --argjson new_entry "$NEW_ENTRY" --argjson updated_current_latest "$UPDATED_CURRENT_LATEST_ENTRY" '[$dev_entry, $new_entry, $updated_current_latest] + .[2:]' <<< "$SWITCHER_CONTENT")
+
+            SWITCHER_FILE="${version}/_static/switcher.json"
+            echo "$UPDATED_SWITCHER_CONTENT" > "$SWITCHER_FILE"
+            echo "${version}/_static/switcher.json has been updated successfully."
+          fi
+        else
+          # File does not exist, initialize with current version/dev as latest
+          if {{ inputs.base-url }} == "" ]]; then
+            echo "Error: switcher.json does not exist at ${SWITCHER_URL} and no base-url was provided to initialize it."
+            exit 1
+          fi
+          BASE_URL=${{ inputs.base-url }}
+          NEW_URL="${BASE_URL}/latest"
+
+          if [[ "${version}" != "dev" ]]; then
+            # Create the "latest" entry
+            LATEST_ENTRY=$(jq -n --arg version "${version}" --arg url "$NEW_URL" --arg name "$version (latest)" \
+              '{name: $name, version: $version, url: $url}')
+
+            # Create the "dev" entry
+            DEV_ENTRY=$(jq -n --arg version "dev" --arg url "${BASE_URL}/dev" --arg name "Development" \
+              '{name: $name, version: $version, url: $url}')
+            
+            # Combine both
+            UPDATED_SWITCHER_CONTENT=$(jq -n --argjson latest "$LATEST_ENTRY" --argjson dev "$DEV_ENTRY" \
+              '[$dev, $latest]')
+            
+            # Add the initial switcher file
+            SWITCHER_FILE="${version}/_static/switcher.json"
+            echo "$UPDATED_SWITCHER_CONTENT" > "$SWITCHER_FILE"
+            echo "${version}/_static/switcher.json has been updated successfully."
+          fi
+        fi
+        
+        # If this is a new release, update the link from /latest to it
+        if [[ "${version}" != "dev" ]]; then
+            echo -e "\nSetup link from ${version} to 'latest'."
+            rm -f latest
+            ln -sf ${version} latest
+        fi
+        
+        # Stage the commit
+        git add -A .
+        echo -e "\nChanges to be applied:"
+        git status
+        # Configure git to be the GitHub Actions account
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
+        echo -e "\nMaking a new commit:"
+        git commit -m "$message"
+        # Make the push quiet just in case there is anything that could leak
+        # sensitive information.
+        echo -e "\nPushing changes to gh-pages."
+        git push -fq origin gh-pages 2>&1 >/dev/null
+        echo -e "\nFinished uploading generated files."
