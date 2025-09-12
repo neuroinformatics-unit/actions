@@ -84,7 +84,7 @@ runs:
           BUILD_DIR="../docs/build"
         cp -Rvf $BUILD_DIR ${version}/
 
-        SWITCHER_URL=${{ inputs.switcher-url }}
+        SWITCHER_URL="${{ inputs.switcher-url }}"
         
         if curl --output /dev/null --silent --head --fail "$SWITCHER_URL"; then
           if [[ "${version}" != "dev" ]]; then
@@ -118,7 +118,7 @@ runs:
             exit 1
           fi
           BASE_URL=${{ inputs.base-url }}
-          BASE_URL="${BASE_URL%/}"
+          BASE_URL=${BASE_URL%/}
           NEW_URL="${BASE_URL}/latest"
 
           if [[ "${version}" != "dev" ]]; then
