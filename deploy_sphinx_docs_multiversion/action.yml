@@ -118,6 +118,7 @@ runs:
             exit 1
           fi
           BASE_URL=${{ inputs.base-url }}
+          BASE_URL="${BASE_URL%/}"
           NEW_URL="${BASE_URL}/latest"
 
           if [[ "${version}" != "dev" ]]; then
