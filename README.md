@@ -111,7 +111,38 @@ deploy_sphinx_docs:
       secret_input: ${{ secrets.GITHUB_TOKEN }}
       use-make: false
 ```
-The `use-make` input is optional and defaults to `false`. If set to `true`, the action will assume that the Sphinx documentation is built using `make` and will use the `./docs/build/html` directory as the publish directory. If set to `false`, it will use the `./docs/build/` directory instead. 
+
+To deploy versioned docs you can instead use the `deploy_sphinx_docs_multiversion` action.
+
+```yaml
+name: Deploy Docs
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build documentation
+        uses: neuroinformatics-unit/actions/build_sphinx_docs
+        with:
+          use-make: true
+
+      - name: Deploy documentation
+        uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multi_version
+        with:
+          secret_input: ${{ secrets.GITHUB_TOKEN }}
+          use-make: true
+          switcher-url: https://<username>.github.io/<repo>/latest/_static/switcher.json
+          base-url: https://<username>.github.io/<repo>
+
+```
+The `use-make` input is optional as well and defaults to `false`. If set to `true`, the action will assume that the Sphinx documentation is built using `make` and will use the `./docs/build/html` directory as the publish directory. If set to `false`, it will use the `./docs/build/` directory instead. 
+
+The `base-url` is optional and is the URL to be used for initialising the switcher.json file.
 
 ## Full Workflows
 * An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).

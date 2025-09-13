@@ -44,5 +44,6 @@ jobs:
         with:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true
-          switcher_url: https://<username>.github.io/<repo>/latest/_static/switcher.json
+          switcher-url: https://<username>.github.io/<repo>/latest/_static/switcher.json
+          base-url: https://<username>.github.io/<repo>
 ```
