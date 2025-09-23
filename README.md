@@ -137,12 +137,10 @@ jobs:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true
           switcher-url: https://<username>.github.io/<repo>/latest/_static/switcher.json
-          base-url: https://<username>.github.io/<repo>
 
 ```
 The `use-make` input is optional as well and defaults to `false`. If set to `true`, the action will assume that the Sphinx documentation is built using `make` and will use the `./docs/build/html` directory as the publish directory. If set to `false`, it will use the `./docs/build/` directory instead. 
 
-The `base-url` is optional and is the URL to be used for initialising the switcher.json file.
 
 ## Full Workflows
 * An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).

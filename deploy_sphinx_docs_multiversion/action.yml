@@ -16,11 +16,6 @@ inputs:
     description: |
       The URL to the switcher.json file that will be updated with the new version.
     required: true
-  base-url:
-    description: |
-      The URL to be used as the base-url for the initialising the switcher.json file.
-    required: false
-    default: ""
 
 runs:
   using: 'composite'
@@ -68,7 +63,7 @@ runs:
       # Need to have this file so that Github doesn't try to run Jekyll
       touch .nojekyll
 
-      #Add redirection from root url to latest
+      # Add redirection from root url to latest
       echo '<meta http-equiv="Refresh" content="0;url=latest/index.html"/>' > index.html
 
       # Delete all the files and replace with our new  set
@@ -112,13 +107,7 @@ runs:
           echo "${version}/_static/switcher.json has been updated successfully."
         fi
       else
-        # File does not exist, initialize with current version/dev as latest
-        if {{ inputs.base-url }} == "" ]]; then
-          echo "Error: switcher.json does not exist at ${SWITCHER_URL} and no base-url was provided to initialize it."
-          exit 1
-        fi
-        BASE_URL=${{ inputs.base-url }}
-        BASE_URL=${BASE_URL%/}
+        BASE_URL="${SWITCHER_URL%/latest*}"
         NEW_URL="${BASE_URL}/latest"
 
         if [[ "${version}" != "dev" ]]; then
@@ -127,7 +116,7 @@ runs:
             '{name: $name, version: $version, url: $url}')
 
           # Create the "dev" entry
-          DEV_ENTRY=$(jq -n --arg version "dev" --arg url "${BASE_URL}/dev" --arg name "Development" \
+          DEV_ENTRY=$(jq -n --arg version "dev" --arg url "${BASE_URL}/dev" --arg name "dev" \
             '{name: $name, version: $version, url: $url}')
           
           # Combine both

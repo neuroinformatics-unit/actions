@@ -4,10 +4,11 @@ The docs are then published (by default at `https://<username>.github.io/<repo>/
 
 ## Features
 * Removes any previous builds, if present in `docs/build`
-* Downloads the built html pages (artifact named `docs-build`) into the `docs/build` folder (see the [Build Sphinx Docs action](../build_sphinx_docs/README.md))
+* Downloads the built HTML pages (artifact named `docs-build`) into the docs/build folder (see the [Build Sphinx Docs action](../build_sphinx_docs/README.md))
 * Pushes the built HTML pages to the gh-pages branch under the correct version
 * Updates switcher.json to mark the new version as latest
 * Maintains a latest symlink for convenience
+* Deploys documentation from the main branch as a dev version for ongoing development
 
 ## Inputs
 
@@ -16,7 +17,6 @@ The docs are then published (by default at `https://<username>.github.io/<repo>/
 | `secret_input` | ✅ Yes   | string  | —       | The GitHub token used for authentication. |
 | `switcher-url` | ✅ Yes   | string  | —       | URL of the `switcher.json` file, which will be updated with the new version info. |
 | `use-make`     | ❌ No    | boolean | `false` | Whether the docs were built with `make`. If `true`, deploys from `./docs/build/html`; otherwise from `./docs/build`. |
-| `base-url`    | ❌ No   | string | ""     | The URL to be used as the base-url for the initialising the switcher.json file.   |
 
 > ⚠️ Make sure the value of `use-make` matches what was used in the [Build Sphinx Docs action](../build_sphinx_docs/README.md), otherwise deployment may fail.
 
@@ -45,5 +45,4 @@ jobs:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true
           switcher-url: https://<username>.github.io/<repo>/latest/_static/switcher.json
-          base-url: https://<username>.github.io/<repo>
 ```
