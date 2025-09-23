@@ -82,10 +82,10 @@ runs:
       SWITCHER_URL="${{ inputs.switcher-url }}"
       
       if curl --output /dev/null --silent --head --fail "$SWITCHER_URL"; then
+        # File exists, fetch content
+        SWITCHER_CONTENT=$(curl "$SWITCHER_URL")
         if [[ "${version}" != "dev" ]]; then
           echo -e "\nUpdating switcher.json at ${SWITCHER_URL} for version ${version}."
-          # File exists, fetch and update
-          SWITCHER_CONTENT=$(curl "$SWITCHER_URL")
           BASE_URL="$(jq -r '.[1].url|split("/")[0:-1]|join("/")' <<< $SWITCHER_CONTENT)"
           NEW_URL="${BASE_URL}/latest"
 
@@ -100,12 +100,11 @@ runs:
             '{name: $name, version: $version, url: $url}')
 
           # Combine the entries in the desired order
-          UPDATED_SWITCHER_CONTENT=$(jq --argjson dev_entry "$DEV_ENTRY" --argjson new_entry "$NEW_ENTRY" --argjson updated_current_latest "$UPDATED_CURRENT_LATEST_ENTRY" '[$dev_entry, $new_entry, $updated_current_latest] + .[2:]' <<< "$SWITCHER_CONTENT")
-
-          SWITCHER_FILE="${version}/_static/switcher.json"
-          echo "$UPDATED_SWITCHER_CONTENT" > "$SWITCHER_FILE"
-          echo "${version}/_static/switcher.json has been updated successfully."
+          SWITCHER_CONTENT=$(jq --argjson dev_entry "$DEV_ENTRY" --argjson new_entry "$NEW_ENTRY" --argjson updated_current_latest "$UPDATED_CURRENT_LATEST_ENTRY" '[$dev_entry, $new_entry, $updated_current_latest] + .[2:]' <<< "$SWITCHER_CONTENT")
         fi
+        SWITCHER_FILE="${version}/_static/switcher.json"
+        echo "SWITCHER_CONTENT" > "$SWITCHER_FILE"
+        echo "${version}/_static/switcher.json has been updated successfully."
       else
         BASE_URL="${SWITCHER_URL%/latest*}"
         NEW_URL="${BASE_URL}/latest"
