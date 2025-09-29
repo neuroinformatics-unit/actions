@@ -86,7 +86,7 @@ runs:
         SWITCHER_CONTENT=$(curl "$SWITCHER_URL")
         if [[ "${version}" != "dev" ]]; then
           echo -e "\nUpdating switcher.json at ${SWITCHER_URL} for version ${version}."
-          BASE_URL="$(jq -r '.[1].url|split("/")[0:-1]|join("/")' <<< $SWITCHER_CONTENT)"
+          BASE_URL="$(jq -r '.[1].url | sub("/+$"; "") | split("/")[:-1] | join("/")' <<< "$SWITCHER_CONTENT")"
           NEW_URL="${BASE_URL}/latest"
 
           # Extract the current dev entry
