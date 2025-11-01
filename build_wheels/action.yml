@@ -11,6 +11,6 @@ runs:
       uses: pypa/cibuildwheel@v3.2.0
 
     - name: Upload artefact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: ./wheelhouse/*.whl
