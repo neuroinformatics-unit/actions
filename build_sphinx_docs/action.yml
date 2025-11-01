@@ -89,7 +89,7 @@ runs:
 
   - name: Upload the content for deployment
     if: ${{ inputs.use-artifactci == 'false' }}
-    uses: actions/upload-artifact@v4
+    uses: actions/upload-artifact@v5
     with:
       name: docs-build
       path: ./docs/build/
