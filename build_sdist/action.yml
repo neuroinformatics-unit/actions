@@ -11,6 +11,6 @@ runs:
       run: pipx run build --sdist
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         path: dist/*.tar.gz
