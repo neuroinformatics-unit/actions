@@ -1,0 +1,36 @@
+name: Check if tag points to main
+description: 
+  Check if the workflow is triggered by a tag, and if that tag 
+  points to a commit on the main branch.
+
+outputs:
+  tag_on_main:  
+    description: 
+      Returns true if the workflow is triggered by a tag 
+      and that tag points to a commit on the main branch.
+    value: ${{ steps.check.outputs.tag_on_main }} 
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # need full history to check ancestry
+
+    - name: Check if trigger is tag and it is on main
+      id: check
+      shell: bash
+      run: |
+        if [ "${{ github.ref_type }}" != "tag" ]; then
+          echo "tag_on_main=false" >> $GITHUB_OUTPUT
+          echo "Run not triggered by a tag"
+        else
+          # Only check ancestry if it IS a tag
+          if git merge-base --is-ancestor ${{ github.sha }} origin/main 2>/dev/null; then
+            echo "tag_on_main=true" >> $GITHUB_OUTPUT
+            echo "Run triggered by a tag on main (${{ github.ref_name }})" 
+          else
+            echo "tag_on_main=false" >> $GITHUB_OUTPUT
+            echo "Run triggered by a tag NOT on main (${{ github.ref_name }})" 
+          fi
+        fi
