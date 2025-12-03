@@ -32,7 +32,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-  - uses: actions/checkout@v5
+  - uses: actions/checkout@v6
     with:
       fetch-depth: ${{ inputs.fetch-tags == 'false' && 1 || 0 }}  
       # If 0, fetch all history for all branches and tags. Default is 1 (only the latest commit).
