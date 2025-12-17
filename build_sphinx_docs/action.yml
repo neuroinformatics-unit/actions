@@ -23,7 +23,7 @@ inputs:
     type: boolean
     default: false
   use-requirementstxt:
-    description: 'Use `requirements.txt` for the docs dependencies. "false" uses [docs] dependencies from pyproject.toml'
+    description: 'Use `docs/requirements.txt` for the docs dependencies. "false" uses [docs] optional dependencies from pyproject.toml'
     required: false
     type: boolean
     default: true
