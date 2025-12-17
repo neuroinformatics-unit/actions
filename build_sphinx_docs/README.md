@@ -6,7 +6,9 @@ The various steps include:
 * setting up Python
   * the version can be specified via the `python-version` input, and defaults to `3.x`
 * installing pip and setting up pip cache
-* pip installing build dependencies (themes, build tools, etc.) from `docs/requirements.txt`
+* pip installing build dependencies (themes, build tools, etc.) in one of two ways:
+  * by default, from `docs/requirements.txt` (with `use-requirements-txt: true`), or
+  * from the `[docs]` section of `pyproject.toml` (with `use-requirements-txt: false`) 
 * checking that external links in the documentation are not broken 
   * optional, defaults to `true` (i.e. links are checked), see the [warning](#warning) below for more information
 * building the html pages in one of two ways, by setting the `use-make` input (default: `false`)

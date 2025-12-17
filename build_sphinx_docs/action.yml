@@ -22,6 +22,11 @@ inputs:
     required: false
     type: boolean
     default: false
+  use-requirements-txt:
+    description: 'Use `docs/requirements.txt` for the docs dependencies. "false" uses [docs] optional dependencies from pyproject.toml'
+    required: false
+    type: boolean
+    default: true
   use-artifactci:
     description: 'Set to "lazy" or "eager" to use artifact.ci with the specified mode; "false" uses actions/upload-artifact.'
     required: false
@@ -59,13 +64,18 @@ runs:
     uses: actions/cache@v4
     with:
       path: ${{ steps.pip-cache.outputs.dir }}
-      key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+      key: ${{ runner.os }}-pip-${{ inputs.use-requirements-txt == 'true' && hashFiles('**/requirements.txt') || hashFiles('**/pyproject.toml') }}
       restore-keys: |
         ${{ runner.os }}-pip-
 
   - name: Install dependencies
     shell: bash
-    run: python3 -m pip install -r ./docs/requirements.txt
+    run: |
+      if [ ${{ inputs.use-requirements-txt }} == 'true' ]; then
+        python3 -m pip install -r ./docs/requirements.txt
+      else
+        python3 -m pip install ".[docs]"
+      fi
 
   - name: Check links
     if: ${{ inputs.check-links == 'true' }}
