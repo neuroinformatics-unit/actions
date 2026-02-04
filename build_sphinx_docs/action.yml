@@ -17,6 +17,11 @@ inputs:
     required: false
     type: boolean
     default: true
+  github-token:
+    description: 'GitHub token for API authentication (e.g., for linkcheck)'
+    required: false
+    type: string
+    default: ''
   use-make:
     description: 'Use `make` with linkcheck and building html'
     required: false
@@ -80,6 +85,8 @@ runs:
   - name: Check links
     if: ${{ inputs.check-links == 'true' }}
     shell: bash
+    env:
+      GITHUB_TOKEN: ${{ inputs.github-token }}
     run: | 
       if [ ${{ inputs.use-make }} == 'true' ]; then
         cd docs && make linkcheck

@@ -9,8 +9,9 @@ The various steps include:
 * pip installing build dependencies (themes, build tools, etc.) in one of two ways:
   * by default, from `docs/requirements.txt` (with `use-requirements-txt: true`), or
   * from the `[docs]` section of `pyproject.toml` (with `use-requirements-txt: false`) 
-* checking that external links in the documentation are not broken 
+* checking that external links in the documentation are not broken
   * optional, defaults to `true` (i.e. links are checked), see the [warning](#warning) below for more information
+  * you can pass a GitHub token via the `github-token` input, which is exposed as the `GITHUB_TOKEN` environment variable during linkcheck. This can help avoid rate-limiting when checking links to GitHub repositories.
 * building the html pages in one of two ways, by setting the `use-make` input (default: `false`)
   * (default) using `sphinx-build` to build the pages from `docs/source` (should contain Sphinx source files) to `docs/build`
   * (`use-make: true`) using the `make` utility with a custom `docs/Makefile` to build the pages from `SOURCEDIR` to `BUILDDIR` as defined in the Makefile
@@ -56,3 +57,25 @@ If the linkcheck step produces "false positives" for your project (i.e. marking 
       with:
         check-links: false
   ```
+
+If the linkcheck step takes too long in CI due to rate-limiting on GitHub URLs, you can pass a GitHub token via the `github-token` input and configure `conf.py` to use it in request headers:
+```yaml
+build_sphinx_docs:
+  name: Build Sphinx Docs
+  runs-on: ubuntu-latest
+  steps:
+  - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+    with:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+```python
+# conf.py
+import os
+
+github_token = os.environ.get("GITHUB_TOKEN", "")
+linkcheck_request_headers = {
+    "https://github.com": {
+        "Authorization": f"Bearer {github_token}",
+    },
+}
+```
