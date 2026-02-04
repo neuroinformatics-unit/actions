@@ -75,7 +75,7 @@ import os
 github_token = os.environ.get("GITHUB_TOKEN", "")
 linkcheck_request_headers = {
     "https://github.com": {
-        "Authorization": f"token {github_token}",
+        "Authorization": f"Bearer {github_token}",
     },
 }
 ```
