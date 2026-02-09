@@ -51,7 +51,23 @@ updates:
         patterns:
           - "actions/*"
   - package-ecosystem: "github-actions"
+    directory: /check_tag_on_main
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
     directory: /deploy_sphinx_docs
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /deploy_sphinx_docs_multiversion
     schedule:
       interval: "monthly"
     groups:
@@ -68,6 +84,14 @@ updates:
           - "actions/*"
   - package-ecosystem: "github-actions"
     directory: /test
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /upload_pypi
     schedule:
       interval: "monthly"
     groups:
