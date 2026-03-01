@@ -21,20 +21,20 @@ runs:
   using: 'composite'
   steps:
   - name: Checkout repository
-    uses: actions/checkout@v4
+    uses: actions/checkout@v6
 
   - name: Clear previous build if present
     shell: bash
     run: rm -rf ./docs/build
 
   - name: Download the content for deployment
-    uses: actions/download-artifact@v4
+    uses: actions/download-artifact@v8
     with:
       name: docs-build
       path: ./docs/build
 
   - name: Checkout the gh-pages branch in a separate folder
-    uses: actions/checkout@v4
+    uses: actions/checkout@v6
     with:
       ref: gh-pages
       # Checkout to this folder instead of the current one
