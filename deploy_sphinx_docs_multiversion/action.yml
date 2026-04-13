@@ -79,7 +79,7 @@ runs:
       
       cp -Rvf $BUILD_DIR ${version}/
 
-      if [ -f "${version}/404.html" ]; then
+      if [[ "${version}" != "dev" && -f "${version}/404.html" ]]; then
         echo -e "\nUpdating root-level 404.html from ${version}/404.html"
         cp -f "${version}/404.html" 404.html
       fi
