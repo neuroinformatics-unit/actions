@@ -79,6 +79,11 @@ runs:
       
       cp -Rvf $BUILD_DIR ${version}/
 
+      if [[ "${version}" != "dev" && -f "${version}/404.html" ]]; then
+        echo -e "\nUpdating root-level 404.html with ${version}/404.html"
+        cp -f "${version}/404.html" 404.html
+      fi
+
       SWITCHER_URL="${{ inputs.switcher-url }}"
       
       if curl --output /dev/null --silent --head --fail "$SWITCHER_URL"; then
