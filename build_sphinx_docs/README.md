@@ -8,7 +8,7 @@ The various steps include:
 * installing pip and setting up pip cache
 * pip installing build dependencies (themes, build tools, etc.) in one of two ways:
   * by default, from `docs/requirements.txt` (with `use-requirements-txt: true`), or
-  * from the `[docs]` section of `pyproject.toml` (with `use-requirements-txt: false`) 
+  * from the `docs` [dependency group](https://packaging.python.org/en/latest/specifications/dependency-groups/#dependency-groups) in `pyproject.toml` (with `use-requirements-txt: false`) 
 * checking that external links in the documentation are not broken
   * optional, defaults to `true` (i.e. links are checked), see the [warning](#warning) below for more information
   * you can pass a GitHub token via the `github-token` input, which is exposed as the `GITHUB_TOKEN` environment variable during linkcheck. This can help avoid rate-limiting when checking links to GitHub repositories.
