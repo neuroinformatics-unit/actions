@@ -80,7 +80,8 @@ runs:
         python3 -m pip install -r ./docs/requirements.txt
       else
         if ! python3 -m pip install . --group docs; then
-          msg="Failed to install using 'docs' dependency group."
+          msg="Failed to install using 'docs' dependency group;"
+          msg="$msg falling back to '.[docs]' extras."
           msg="$msg Consider migrating from optional-dependencies"
           msg="$msg to PEP 735 dependency-groups in pyproject.toml."
           echo "::warning::$msg"
