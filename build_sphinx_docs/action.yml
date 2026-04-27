@@ -79,7 +79,13 @@ runs:
       if [ ${{ inputs.use-requirements-txt }} == 'true' ]; then
         python3 -m pip install -r ./docs/requirements.txt
       else
-        python3 -m pip install . --group docs
+        if ! python3 -m pip install . --group docs; then
+          msg="Failed to install using 'docs' dependency group."
+          msg="$msg Consider migrating from optional-dependencies"
+          msg="$msg to PEP 735 dependency-groups in pyproject.toml."
+          echo "::warning::$msg"
+          python3 -m pip install ".[docs]"
+        fi
       fi
 
   - name: Check links
