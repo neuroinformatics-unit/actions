@@ -28,7 +28,7 @@ inputs:
     type: boolean
     default: false
   use-requirements-txt:
-    description: 'Use `docs/requirements.txt` for the docs dependencies. "false" uses [docs] optional dependencies from pyproject.toml'
+    description: 'Use `docs/requirements.txt` for the docs dependencies. "false" uses the `docs` dependency group from pyproject.toml'
     required: false
     type: boolean
     default: true
@@ -79,7 +79,7 @@ runs:
       if [ ${{ inputs.use-requirements-txt }} == 'true' ]; then
         python3 -m pip install -r ./docs/requirements.txt
       else
-        python3 -m pip install ".[docs]"
+        python3 -m pip install . --group docs
       fi
 
   - name: Check links
