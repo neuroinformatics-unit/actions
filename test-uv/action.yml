@@ -1,0 +1,84 @@
+name: 'Python test'
+description: 'Run Python tests using uv'
+
+inputs:
+  python-version:
+    description: 'Python version'
+    required: true
+    type: string
+  pytest-args:
+    description: 'Arguments to pass to the pytest command'
+    required: false
+    type: string
+    default: ''
+  install-extras:
+    description: 'Comma-separated extras to install'
+    required: false
+    type: string
+    default: 'dev'
+  extra-dependencies:
+    description: 'Space-separated packages to install on top of the main install'
+    required: false
+    type: string
+    default: ''
+  use-xvfb:
+    description: 'Run tests with XVFB on Linux'
+    required: false
+    type: boolean
+    default: false
+  codecov-flags:
+    description: 'Flags to pass to codecov'
+    required: false
+    type: string
+    default: ''
+  secret-codecov-token:
+    description: 'Codecov token to upload coverage reports'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v6
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install package and dependencies
+      shell: bash
+      env:
+        EXTRAS: ${{ inputs.install-extras }}
+      run: uv pip install -e ".[$EXTRAS]" --system
+
+    - name: Install extra dependencies
+      if: ${{ inputs.extra-dependencies != '' }}
+      shell: bash
+      run: uv pip install ${{ inputs.extra-dependencies }} --system
+
+    - name: Run tests
+      if: ${{ inputs.use-xvfb != 'true' }}
+      shell: bash
+      run: uv run pytest ${{ inputs.pytest-args }}
+
+    - name: Run tests with XVFB
+      if: ${{ inputs.use-xvfb == 'true' }}
+      # SHA corresponds to v1.1 release
+      uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816
+      with:
+        run: uv run pytest ${{ inputs.pytest-args }}
+
+    - name: Issue deprecation warning for tokenless codecov
+      shell: bash
+      run: |
+        if [[ -z "${{ inputs.secret-codecov-token }}" ]]; then
+          echo '::warning::secret-codecov-token is not set. This will be required in the future.'\
+          ' See https://docs.codecov.com/docs/quick-start#step-2-get-the-repository-upload-token on how to get a token.'
+        fi
+
+    - name: Report coverage to codecov
+      uses: codecov/codecov-action@v6
+      with:
+        flags: ${{ inputs.codecov-flags }}
+        token: ${{ inputs.secret-codecov-token }}
