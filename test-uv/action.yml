@@ -45,29 +45,31 @@ runs:
       with:
         enable-cache: true
         python-version: ${{ inputs.python-version }}
+        cache-dependency-glob: "**/pyproject.toml"
 
     - name: Install package and dependencies
       shell: bash
       env:
         EXTRAS: ${{ inputs.install-extras }}
-      run: uv pip install -e ".[$EXTRAS]"
-
-    - name: Install extra dependencies
-      if: ${{ inputs.extra-dependencies != '' }}
-      shell: bash
-      run: uv pip install ${{ inputs.extra-dependencies }}
+        EXTRA_DEPS: ${{ inputs.extra-dependencies }}
+      run: |
+        if [[ -n "$EXTRA_DEPS" ]]; then
+          uv pip install -e ".[$EXTRAS]" $EXTRA_DEPS
+        else
+          uv pip install -e ".[$EXTRAS]"
+        fi
 
     - name: Run tests
       if: ${{ inputs.use-xvfb != 'true' }}
       shell: bash
-      run: uv run pytest ${{ inputs.pytest-args }}
+      run: pytest ${{ inputs.pytest-args }}
 
     - name: Run tests with XVFB
       if: ${{ inputs.use-xvfb == 'true' }}
       # SHA corresponds to v1.1 release
       uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816
       with:
-        run: uv run pytest ${{ inputs.pytest-args }}
+        run: pytest ${{ inputs.pytest-args }}
 
     - name: Issue deprecation warning for tokenless codecov
       shell: bash
