@@ -50,12 +50,12 @@ runs:
       shell: bash
       env:
         EXTRAS: ${{ inputs.install-extras }}
-      run: uv pip install -e ".[$EXTRAS]" --system
+      run: uv pip install -e ".[$EXTRAS]"
 
     - name: Install extra dependencies
       if: ${{ inputs.extra-dependencies != '' }}
       shell: bash
-      run: uv pip install ${{ inputs.extra-dependencies }} --system
+      run: uv pip install ${{ inputs.extra-dependencies }}
 
     - name: Run tests
       if: ${{ inputs.use-xvfb != 'true' }}
