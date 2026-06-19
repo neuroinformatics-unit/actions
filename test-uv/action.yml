@@ -38,10 +38,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v5
+      uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
       with:
         enable-cache: true
         python-version: ${{ inputs.python-version }}
@@ -66,8 +66,7 @@ runs:
 
     - name: Run tests with XVFB
       if: ${{ inputs.use-xvfb == 'true' }}
-      # SHA corresponds to v1.1 release
-      uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816
+      uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
       with:
         run: pytest ${{ inputs.pytest-args }}
 
@@ -80,7 +79,7 @@ runs:
         fi
 
     - name: Report coverage to codecov
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
       with:
         flags: ${{ inputs.codecov-flags }}
         token: ${{ inputs.secret-codecov-token }}
