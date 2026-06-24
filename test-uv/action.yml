@@ -46,6 +46,7 @@ runs:
         enable-cache: true
         python-version: ${{ inputs.python-version }}
         cache-dependency-glob: "**/pyproject.toml"
+        activate-environment: true
 
     - name: Install package and dependencies
       shell: bash
