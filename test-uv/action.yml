@@ -22,7 +22,7 @@ inputs:
     type: string
     default: ''
   install-main-branch:
-    description: 'GitHub repo to install from main branch'
+    description: 'Comma-separated GitHub repo to install from main branch'
     required: false
     type: string
     default: ''
@@ -53,6 +53,17 @@ runs:
         cache-dependency-glob: "**/pyproject.toml"
         activate-environment: true
 
+    - name: Install main branch dependencies
+      if: ${{ inputs.install-main-branch != '' }}
+      shell: bash
+      env:
+        MAIN_BRANCH_DEPS: ${{ inputs.install-main-branch }}
+      run: |
+        IFS=',' read -ra repos <<< "$MAIN_BRANCH_DEPS"
+        for repo in "${repos[@]}"; do
+          uv pip install "git+https://github.com/${repo// /}"
+        done
+
     - name: Install package and dependencies
       shell: bash
       env:
@@ -64,13 +75,6 @@ runs:
         else
           uv pip install -e ".[$EXTRAS]"
         fi
-      
-    - name: Install main branch dependency
-      if: ${{ inputs.install-main-branch != '' }}
-      shell: bash
-      env:
-        MAIN_BRANCH_DEP: ${{ inputs.install-main-branch }}
-      run: uv pip install "git+https://github.com/$MAIN_BRANCH_DEP"
 
     - name: Set up headless display
       if: ${{ inputs.use-headless == 'true' }}
