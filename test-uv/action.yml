@@ -22,7 +22,7 @@ inputs:
     type: string
     default: ''
   install-main-branch:
-    description: 'Comma-separated GitHub repo to install from main branch'
+    description: 'Comma-separated list of GitHub repos to install from main branch'
     required: false
     type: string
     default: ''
