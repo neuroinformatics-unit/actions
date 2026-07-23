@@ -21,8 +21,13 @@ inputs:
     required: false
     type: string
     default: ''
-  use-xvfb:
-    description: 'Run tests with XVFB on Linux'
+  install-main-branch:
+    description: 'Comma-separated list of GitHub repos to install from main branch'
+    required: false
+    type: string
+    default: ''
+  use-headless:
+    description: 'Run tests with pyvista headless display'
     required: false
     type: boolean
     default: false
@@ -48,6 +53,17 @@ runs:
         cache-dependency-glob: "**/pyproject.toml"
         activate-environment: true
 
+    - name: Install main branch dependencies
+      if: ${{ inputs.install-main-branch != '' }}
+      shell: bash
+      env:
+        MAIN_BRANCH_DEPS: ${{ inputs.install-main-branch }}
+      run: |
+        IFS=',' read -ra repos <<< "$MAIN_BRANCH_DEPS"
+        for repo in "${repos[@]}"; do
+          uv pip install "git+https://github.com/${repo// /}"
+        done
+
     - name: Install package and dependencies
       shell: bash
       env:
@@ -60,16 +76,15 @@ runs:
           uv pip install -e ".[$EXTRAS]"
         fi
 
+    - name: Set up headless display
+      if: ${{ inputs.use-headless == 'true' }}
+      uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4
+      with:
+        qt: true
+
     - name: Run tests
-      if: ${{ inputs.use-xvfb != 'true' }}
       shell: bash
       run: pytest ${{ inputs.pytest-args }}
-
-    - name: Run tests with XVFB
-      if: ${{ inputs.use-xvfb == 'true' }}
-      uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
-      with:
-        run: pytest ${{ inputs.pytest-args }}
 
     - name: Issue deprecation warning for tokenless codecov
       shell: bash
