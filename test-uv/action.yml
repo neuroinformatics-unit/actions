@@ -31,6 +31,11 @@ inputs:
     required: false
     type: boolean
     default: false
+  install-mesa3d-offscreen:
+    description: 'Install Mesa3D offscreen rendering for headless display'
+    required: false
+    type: boolean
+    default: true
   codecov-flags:
     description: 'Flags to pass to codecov'
     required: false
@@ -81,6 +86,7 @@ runs:
       uses: pyvista/setup-headless-display-action@5bc8de3bc71fcda7a96439571287a554901541a0 # v4
       with:
         qt: true
+        install-mesa3d-offscreen: ${{ inputs.install-mesa3d-offscreen }}
 
     - name: Run tests
       shell: bash
