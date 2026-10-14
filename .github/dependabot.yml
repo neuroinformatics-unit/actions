@@ -90,3 +90,11 @@ updates:
       actions:
         patterns:
           - "actions/*"
+  - package-ecosystem: "github-actions"
+    directory: /test-uv
+    schedule:
+      interval: "monthly"
+    groups:
+      actions:
+        patterns:
+          - "actions/*"

@@ -37,11 +37,11 @@ For example, to only build and publish the source distribution if the trigger is
     if: github.event_name == 'push' && needs.check_tag.outputs.tag_on_main == 'true'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
       with:
         name: artifact
         path: dist
-    - uses: pypa/gh-action-pypi-publish@release/v1
+    - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
       with:
         user: __token__
         password: ${{ secrets.TWINE_API_KEY }}

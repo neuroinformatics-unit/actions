@@ -4,13 +4,13 @@ description: 'Build Python package wheels using cibuildwheel.'
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Build wheels
       # Configuration of cibuildwheel is done in pyproject.toml
-      uses: pypa/cibuildwheel@v4.2.1
+      uses: pypa/cibuildwheel@e090b81e30c4d855ea63bf4b6e59204c09a101ae # v4.2.1
 
     - name: Upload artefact
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         path: ./wheelhouse/*.whl

@@ -28,10 +28,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v7
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
       with:
         python-version: ${{ inputs.python-version }}
 
@@ -48,8 +48,7 @@ runs:
 
     - name: Run tests with XVFB
       if: ${{ matrix.use-xvfb }}
-      # SHA corresponds to v1.1 release
-      uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816
+      uses: aganders3/headless-gui@f85dd6316993505dfc5f21839d520ae440c84816 # v2.2
       with:
         run: tox ${{ inputs.tox-args }}
 
@@ -62,7 +61,7 @@ runs:
         fi
 
     - name: Report coverage to codecov
-      uses: codecov/codecov-action@v7
+      uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
       with:
         flags: ${{ inputs.codecov-flags }}
         token: ${{ inputs.secret-codecov-token }}

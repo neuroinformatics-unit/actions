@@ -42,7 +42,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-  - uses: actions/checkout@v7
+  - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     with:
       fetch-depth: ${{ inputs.fetch-tags == 'false' && 1 || 0 }}  
       # If 0, fetch all history for all branches and tags. Default is 1 (only the latest commit).
@@ -50,7 +50,7 @@ runs:
       fetch-tags: ${{ inputs.fetch-tags == 'true' }}
 
   - name: Setup Python
-    uses: actions/setup-python@v7
+    uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
     with:
       python-version: ${{ inputs.python-version }}
 
@@ -66,7 +66,7 @@ runs:
     run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
   - name: Cache dependencies
-    uses: actions/cache@v6
+    uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
     with:
       path: ${{ steps.pip-cache.outputs.dir }}
       key: ${{ runner.os }}-pip-${{ inputs.use-requirements-txt == 'true' && hashFiles('**/requirements.txt') || hashFiles('**/pyproject.toml') }}
@@ -113,7 +113,7 @@ runs:
 
   - name: Upload the content for deployment
     if: ${{ inputs.use-artifactci == 'false' }}
-    uses: actions/upload-artifact@v7
+    uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
     with:
       name: docs-build
       path: ./docs/build/
