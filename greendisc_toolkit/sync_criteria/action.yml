@@ -1,0 +1,47 @@
+name: 'Green DiSC: sync criteria'
+description: 'Generate criteria.yml (IDs, titles, categories, versions) from the upstream Green DiSC criteria repo.'
+
+inputs:
+  upstream-repo:
+    description: 'Git URL of the Green DiSC criteria repo.'
+    required: false
+    default: 'https://github.com/Cambridge-Sustainable-Computing-Lab/greenDiSC'
+  ref:
+    description: 'Upstream branch, tag or commit SHA to read.'
+    required: false
+    default: 'main'
+  track:
+    description: 'Criteria track: RG (Research Group), CT (Central Team) or RCI (Research Computing Infrastructure).'
+    required: false
+    default: 'RG'
+  output:
+    description: 'Path of the generated criteria file.'
+    required: false
+    default: 'criteria.yml'
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version: '3.13'
+
+    # Upstream is read into a temp dir and never committed: only the derived
+    # criteria.yml (IDs, titles, categories) lands in the caller's repo.
+    - name: Generate criteria file
+      shell: bash
+      env:
+        UPSTREAM_REPO: ${{ inputs.upstream-repo }}
+        REF: ${{ inputs.ref }}
+        TRACK: ${{ inputs.track }}
+        OUTPUT: ${{ inputs.output }}
+      # Stdlib only, so plain python (no uv) is enough.
+      run: |
+        upstream="$RUNNER_TEMP/greendisc-criteria"
+        git init -q "$upstream"
+        git -C "$upstream" remote add origin "$UPSTREAM_REPO"
+        # Blobless: full history (to find the last commit that changed the
+        # criteria files) without file contents, which are fetched on checkout.
+        git -C "$upstream" fetch -q --filter=blob:none origin "$REF"
+        git -C "$upstream" checkout -q FETCH_HEAD
+        python "$GITHUB_ACTION_PATH/sync_criteria.py" --upstream "$upstream" --track "$TRACK" --out "$OUTPUT"
