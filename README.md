@@ -142,6 +142,9 @@ jobs:
 The `use-make` input is optional as well and defaults to `false`. If set to `true`, the action will assume that the Sphinx documentation is built using `make` and will use the `./docs/build/html` directory as the publish directory. If set to `false`, it will use the `./docs/build/` directory instead. 
 
 
+## Green DiSC toolkit
+Actions for the [Green DiSC toolkit](https://github.com/neuroinformatics-unit/greendisc-toolkit), which helps research groups gather and review evidence for Green DiSC certification: see [`greendisc_toolkit/`](greendisc_toolkit/README.md).
+
 ## Full Workflows
 * An example workflow, including linting, testing and release can be found at [example_test_and_deploy.yml](./example_test_and_deploy.yml).
 * An example workflow, for building and deploying documentation can be found at [example_build_and_deploy_docs.yml](./example_docs_build_and_deploy.yml).
