@@ -37,9 +37,11 @@ RECORD_MARKER = re.compile(r"<!-- record:(\d+) -->")
 COUNT_RE = re.compile(
     r"(?P<approx>~|about|approx\.?|approximately)?\s*(?P<number>\d+)", re.IGNORECASE
 )
+# Exit status of the CLI when a record is invalid; any other failure is a bug.
+INVALID = 3
 
 # Section heading -> CSV file and columns. A column is either free text (None),
-# free text lower-cased (LOWER, for values counted in summaries), a list of
+# free text lower-cased (LOWER, so the same value is spelled one way), a list of
 # allowed values, YEAR, SIZE (e.g. "~3 TB"), DATE (YYYY-MM-DD), COUNT (e.g.
 # "~40") or OPTIONAL (free text that may stay blank). "unknown" is always allowed, and other blank cells
 # are stored as "unknown".
@@ -47,8 +49,8 @@ SECTIONS = {
     "Hardware": {
         "file": "hardware.csv",
         "columns": {
-            # ponytail: free text; spelling variants split summary counts,
-            # add a synonym map in export_summary if that ever matters.
+            # ponytail: free text; spelling variants ("pc", "desktop") stay
+            # as written, add a synonym map here if they ever need merging.
             "Type": LOWER,
             "Model": None,
             "Supplier": None,
@@ -465,10 +467,30 @@ def save(body: str, issue: int, data_dir: Path) -> str:
     Raises
     ------
     RecordError
-        If any row is invalid; nothing is written.
+        If any row is invalid, or a section that had saved rows is missing;
+        nothing is written.
 
     """
     result, warnings = parse_record(body)
+    # A section whose heading or table is missing has no rows, which would
+    # delete the rows saved from it before: more likely a slip than intended.
+    sections = split_sections(body)
+    errors = []
+    for name in result:
+        path = data_dir / SECTIONS[name]["file"]
+        if parse_table(sections.get(name, ""))[0] or not path.exists():
+            continue
+        with path.open(newline="", encoding="utf-8") as f:
+            saved = sum(r["record"] == str(issue) for r in csv.DictReader(f))
+        if saved:
+            errors.append(
+                f"- {name}: the section or its table is missing, but {saved} row(s) "
+                f"were saved from it. Restore the `### {name}` heading and its "
+                "table (see the issue's edit history), or keep the table with no "
+                "rows to remove them"
+            )
+    if errors:
+        raise RecordError("\n".join(errors))
     lines = []
     for name, rows in result.items():
         section = SECTIONS[name]
@@ -520,7 +542,7 @@ def main(argv: list[str] | None = None) -> None:
     """Run the command-line interface.
 
     ``kind`` prints the record kind (or nothing). ``save`` writes the CSV
-    files and the reply message; it exits with status 1 and writes the errors
+    files and the reply message; it exits with status `INVALID` and writes the errors
     to the message file if the record is invalid. ``tick`` ticks record
     ``--issue``'s lines in the check-in body file, in place. ``remove``
     deletes record ``--issue``'s rows from the CSV files and writes the reply
@@ -566,7 +588,7 @@ def main(argv: list[str] | None = None) -> None:
         message = save(body, args.issue, args.data_dir)
     except RecordError as e:
         args.message_file.write_text(str(e), encoding="utf-8")
-        sys.exit(1)
+        sys.exit(INVALID)
     args.message_file.write_text(message, encoding="utf-8")
 
 

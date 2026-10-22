@@ -30,7 +30,8 @@ runs:
         LABELS: ${{ toJSON(github.event.issue.labels.*.name) }}
         ISSUE: ${{ github.event.issue.number }}
         AUTHOR: ${{ github.event.issue.user.login }}
-        ASSIGNEE: ${{ github.event.issue.assignees[0].login }}
+        AUTHOR_TYPE: ${{ github.event.issue.user.type }}
+        STATE: ${{ github.event.issue.state }}
         BODY: ${{ github.event.issue.body }}
         SENDER: ${{ github.event.sender.login }}
         MILESTONE_CREATED: ${{ github.event.issue.milestone.created_at }}
@@ -58,15 +59,22 @@ runs:
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         # Run a script command (save or remove) on the latest branch, then
         # commit and push the data files, re-applying it on a rejected push.
-        # Sets $commit_url (empty if nothing changed); returns 1 if the script
-        # rejected the record, with the reasons in $message.
+        # Sets $commit_url (empty if nothing changed), and $invalid if the
+        # script rejected the record (exit 3), with the reasons in $message.
+        # Any other failure stops the step. Don't call it as an `if`
+        # condition: that turns off errexit inside the function.
         commit_data() {
-          local command=$1 subject=$2 attempt
+          local command=$1 subject=$2 attempt status
+          invalid=""
           for attempt in 1 2 3 4 5; do
             git fetch -q origin "$BRANCH"
             git reset -q --hard "origin/$BRANCH"
             python "$script" "$command" --body-file "$body_file" --issue "$ISSUE" \
-              --data-dir "$DATA_DIR" --message-file "$message" || return 1
+              --data-dir "$DATA_DIR" --message-file "$message" || {
+              status=$?
+              if [ "$status" -eq 3 ]; then invalid=1; return 0; fi
+              exit "$status"
+            }
             git add "$DATA_DIR"
             commit_url=""
             if git diff --cached --quiet; then
@@ -103,6 +111,10 @@ runs:
             [ -n "$item" ] && missing+=("$item (not ticked)")
           done < <(python "$script" unticked --body-file "$body_file")
           for record in $(python "$script" records --body-file "$body_file"); do
+            if [ -z "$MILESTONE_CREATED" ]; then
+              missing+=("this check-in isn't part of a review (no milestone); ask the Green DiSC representative")
+              break
+            fi
             saved=$(gh api "repos/$GITHUB_REPOSITORY/issues/$record/comments?since=$MILESTONE_CREATED&per_page=100" --paginate \
               --jq '.[] | select(.user.login == "github-actions[bot]") | select(.body | startswith("Saved in") or startswith("No changes")) | .id')
             [ -z "$saved" ] && missing+=("#$record hasn't been saved during this review: comment \`/save\` on it")
@@ -150,14 +162,23 @@ runs:
         label="$kind-record"
         unsaved="unsaved changes"
         # Templates don't copy labels, so make sure ours exist.
-        gh label create "$label" --color 2E7D32 --description "Green DiSC $kind record" --force > /dev/null
-        gh label create "$unsaved" --color FBCA04 --description "Green DiSC record edited since its last /save" --force > /dev/null
+        labels=$(gh label list --limit 500 --json name --jq '.[].name')
+        grep -qxF "$label" <<< "$labels" \
+          || gh label create "$label" --color 2E7D32 --description "Green DiSC $kind record" > /dev/null
+        grep -qxF "$unsaved" <<< "$labels" \
+          || gh label create "$unsaved" --color FBCA04 --description "Green DiSC record edited since its last /save" > /dev/null
 
+        # A record's owner is whoever created it, or, for records created by a
+        # review (the bot), whoever they were first assigned to. Not the
+        # current assignee: anyone with write access can change that.
+        owner="$AUTHOR"
+        if [ "$AUTHOR_TYPE" = Bot ]; then
+          owner=$(gh api "repos/$GITHUB_REPOSITORY/issues/$ISSUE/events" --paginate \
+            | jq -rs '[.[][] | select(.event == "assigned")][0].assignee.login // empty')
+          owner="${owner:-$AUTHOR}"
+        fi
         # One record per person (personal) or per repository (group): only the
         # oldest labelled one counts.
-        # A record's owner is its assignee (records created by a review are
-        # assigned to their owner), or else whoever created it.
-        owner="${ASSIGNEE:-$AUTHOR}"
         owner_of='(.assignees[0].login // .author.login)'
         filter='.[] | select(.number < $n)'
         if [ "$kind" = personal ]; then filter+=" | select($owner_of == \$o)"; fi
@@ -178,6 +199,11 @@ runs:
 
         if [ -n "$older" ]; then
           gh issue comment "$ISSUE" --body "Not saved: the $kind record is #$older. Please edit that one instead."
+          exit 0
+        fi
+        # Closing a record removed its rows; saving it closed would bring them back.
+        if [ "$STATE" = closed ]; then
+          gh issue comment "$ISSUE" --body "Not saved: this record is closed. Reopen it first, then comment \`/save\` again."
           exit 0
         fi
 
@@ -202,7 +228,8 @@ runs:
         fi
         gh issue edit "$ISSUE" --add-label "$label" > /dev/null
 
-        if ! commit_data save "Save Green DiSC record #$ISSUE"; then
+        commit_data save "Save Green DiSC record #$ISSUE"
+        if [ -n "$invalid" ]; then
           {
             echo "Couldn't save this record, so nothing was changed. Please fix:"
             echo
@@ -232,16 +259,16 @@ runs:
         # two records), and the later edit would undo this tick: re-read and
         # retry until it sticks.
         marker="<!-- record:$ISSUE -->"
-        { gh issue list --label check-in --state open --limit 500 --json number,body || echo '[]'; } \
-          | jq -r --arg m "$marker" '.[] | select(.body | contains($m)) | .number' \
-          | while read -r number; do
-              for attempt in 1 2 3 4 5; do
-                gh issue view "$number" --json body --jq .body > "$RUNNER_TEMP/check-in.md"
-                if ! grep -qF -- "- [ ] " <(grep -F -- "$marker" "$RUNNER_TEMP/check-in.md"); then
-                  break
-                fi
-                python "$script" tick --body-file "$RUNNER_TEMP/check-in.md" --issue "$ISSUE"
-                gh issue edit "$number" --body-file "$RUNNER_TEMP/check-in.md" > /dev/null
-                sleep $((attempt * 2))
-              done
-            done
+        check_ins=$(gh issue list --label check-in --state open --limit 500 --json number,body || echo '[]')
+        for number in $(jq -r --arg m "$marker" '.[] | select(.body | contains($m)) | .number' <<< "$check_ins"); do
+          jq -r --argjson n "$number" '.[] | select(.number == $n) | .body' <<< "$check_ins" > "$RUNNER_TEMP/check-in.md"
+          for attempt in 1 2 3 4 5; do
+            if ! grep -qF -- "- [ ] " <(grep -F -- "$marker" "$RUNNER_TEMP/check-in.md"); then
+              break
+            fi
+            python "$script" tick --body-file "$RUNNER_TEMP/check-in.md" --issue "$ISSUE"
+            gh issue edit "$number" --body-file "$RUNNER_TEMP/check-in.md" > /dev/null
+            sleep $((attempt * 2))
+            gh issue view "$number" --json body --jq .body > "$RUNNER_TEMP/check-in.md"
+          done
+        done

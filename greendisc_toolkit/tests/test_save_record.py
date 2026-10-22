@@ -155,7 +155,7 @@ def test_invalid_record_writes_nothing(tmp_path):
 
 
 def test_cli_exit_status(tmp_path):
-    """The CLI exits 1 and writes the errors when the record is invalid."""
+    """The CLI exits INVALID and writes the errors when the record is invalid."""
     src = tmp_path / "body.md"
     msg = tmp_path / "msg.md"
     args = ["save", "--body-file", str(src), "--issue", "1"]
@@ -163,7 +163,7 @@ def test_cli_exit_status(tmp_path):
     src.write_text(body("| Status |\n|---|\n| broken |\n"), encoding="utf-8")
     with pytest.raises(SystemExit) as e:
         sr.main(args)
-    assert e.value.code == 1
+    assert e.value.code == sr.INVALID
     assert "broken" in msg.read_text(encoding="utf-8")
     src.write_text(body(), encoding="utf-8")
     sr.main(args)
@@ -323,3 +323,20 @@ def test_cli_remove_needs_no_body(tmp_path):
     assert read(tmp_path / "hardware.csv") == []
     with pytest.raises(SystemExit):
         sr.main(["kind"])
+
+
+def test_missing_section_keeps_saved_rows(tmp_path):
+    """A section that lost its heading or table can't wipe its saved rows."""
+    sr.save(body(), 5, tmp_path)
+    before = (tmp_path / "hardware.csv").read_bytes()
+    # Pipelines keeps it recognised as a personal record.
+    no_heading = body().replace("### Hardware", "### Hardwear") + "### Pipelines\r\n"
+    no_table = body("Nothing here.\n")
+    for text in (no_heading, no_table):
+        with pytest.raises(sr.RecordError, match="2 row"):
+            sr.save(text, 5, tmp_path)
+    assert (tmp_path / "hardware.csv").read_bytes() == before
+    # An empty table removes them; a missing section is fine with nothing saved.
+    sr.save(body("| Type |\n|---|\n"), 5, tmp_path)
+    assert read(tmp_path / "hardware.csv") == []
+    sr.save(no_heading, 6, tmp_path)
