@@ -93,8 +93,37 @@ def cycle_name(due: datetime.date, name: str = "") -> str:
     return "-".join(name.split()) or f"Review-{due:%Y-%m}"
 
 
+def parse_pr(pr: str) -> str:
+    """Parse a pull request number.
+
+    Parameters
+    ----------
+    pr
+        Number, optionally with a leading ``#``; blank for none.
+
+    Returns
+    -------
+    str
+        The number, or blank.
+
+    Raises
+    ------
+    ValueError
+        If `pr` is not a number.
+
+    """
+    pr = pr.strip().removeprefix("#")
+    if pr and not pr.isdigit():
+        raise ValueError(f"'{pr}' is not a pull request number, e.g. 42")
+    return pr
+
+
 def record_owner(issue: dict) -> str:
-    """Return a record's owner: its assignee, or else whoever created it.
+    """Return a record's owner: whoever created it, or its assignee if a bot did.
+
+    The same rule as ``save_record``'s duplicate check. Records created by a
+    review (the bot) belong to whoever they were assigned to; for any other,
+    the assignee doesn't count, since anyone with write access can change it.
 
     Parameters
     ----------
@@ -108,7 +137,9 @@ def record_owner(issue: dict) -> str:
 
     """
     assignees = issue.get("assignees") or []
-    return assignees[0]["login"] if assignees else issue["user"]["login"]
+    if issue["user"].get("type") == "Bot" and assignees:
+        return assignees[0]["login"]
+    return issue["user"]["login"]
 
 
 def members(collaborators: list[dict]) -> list[str]:
@@ -444,40 +475,46 @@ def start_cycle(
             )
         )
         report.append(f"Created milestone **{cycle}**.")
+    elif current["state"] != "open":
+        # Reusing a past cycle's name would revive it and close the real one.
+        raise ValueError(f"Milestone {cycle} is closed; choose another name")
     else:
         report.append(f"Milestone **{cycle}** already exists; adding what's missing.")
+        if (current.get("due_on") or "")[:10] != f"{due:%Y-%m-%d}":
+            gh(
+                "api",
+                f"repos/{repo}/milestones/{current['number']}",
+                "-X",
+                "PATCH",
+                "-f",
+                f"due_on={due:%Y-%m-%d}T12:00:00Z",
+            )
+            report.append(f"Changed its due date to {due:%Y-%m-%d}.")
     number = current["number"]
     in_cycle = issues_with(repo, f"milestone={number}&state=all")
 
-    def create(title: str, body: str, labels: list[str], assignees=()) -> int:
-        issue = json.loads(
-            gh(
-                "api",
-                f"repos/{repo}/issues",
-                "-X",
-                "POST",
-                data={
-                    "title": title,
-                    "body": body,
-                    "labels": labels,
-                    "milestone": number,
-                    "assignees": list(assignees),
-                },
-            )
-        )
-        return issue["number"]
+    def create(
+        title: str, body: str, labels: list[str], assignees=(), in_milestone=True
+    ) -> dict:
+        data = {
+            "title": title,
+            "body": body,
+            "labels": labels,
+            "assignees": list(assignees),
+        }
+        if in_milestone:
+            data["milestone"] = number
+        return json.loads(gh("api", f"repos/{repo}/issues", "-X", "POST", data=data))
 
     # One check-in per record owner; the representative's also covers saving
     # the group record.
     gh("label", "create", CHECK_IN_LABEL, "--color", "C5DEF5", "--force")
     # Everyone with access gets a personal record once; one that was closed
     # (someone who left, or doesn't need one) is never recreated.
+    personal = issues_with(repo, "labels=personal-record&state=all")
     if personal_form:
         gh("label", "create", "personal-record", "--color", "2E7D32", "--force")
-        owned = {
-            record_owner(r)
-            for r in issues_with(repo, "labels=personal-record&state=all")
-        }
+        owned = {record_owner(r) for r in personal}
         people = members(
             api_list(f"repos/{repo}/collaborators?affiliation=all&per_page=100")
         )
@@ -485,43 +522,32 @@ def start_cycle(
         for login in people:
             if login in owned:
                 continue
-            issue = json.loads(
-                gh(
-                    "api",
-                    f"repos/{repo}/issues",
-                    "-X",
-                    "POST",
-                    data={
-                        "title": f"Green DiSC personal record: {login}",
-                        "body": form_body(personal_form),
-                        "labels": ["personal-record"],
-                        "assignees": [login],
-                    },
-                )
+            issue = create(
+                f"Green DiSC personal record: {login}",
+                form_body(personal_form),
+                ["personal-record"],
+                [login],
+                in_milestone=False,
             )
+            personal.append(issue)
             created.append(f"#{issue['number']} ({login})")
         if created:
             report.append(f"Created personal records: {', '.join(created)}.")
     # The group record too, once, assigned to the representative.
-    if group_form and not issues_with(repo, "labels=group-record&state=all"):
+    group_records = issues_with(repo, "labels=group-record&state=all")
+    if group_form and not group_records:
         gh("label", "create", "group-record", "--color", "2E7D32", "--force")
-        issue = json.loads(
-            gh(
-                "api",
-                f"repos/{repo}/issues",
-                "-X",
-                "POST",
-                data={
-                    "title": "Green DiSC group record",
-                    "body": form_body(group_form),
-                    "labels": ["group-record"],
-                    "assignees": [actor],
-                },
-            )
+        issue = create(
+            "Green DiSC group record",
+            form_body(group_form),
+            ["group-record"],
+            [actor],
+            in_milestone=False,
         )
+        group_records.append(issue)
         report.append(f"Created the group record, #{issue['number']}.")
-    records = issues_with(repo, "labels=personal-record&state=open")
-    groups = issues_with(repo, "labels=group-record&state=open")
+    records = [i for i in personal if i["state"] == "open"]
+    groups = [i for i in group_records if i["state"] == "open"]
     # Closing a record removes its rows, so rows from records that aren't open
     # (deleted, unlabelled, or closed before that) would otherwise stay in the
     # data forever: ask the representative about them.
@@ -562,18 +588,19 @@ def start_cycle(
     for r in sorted(records, key=lambda r: r["number"]):
         owners.setdefault(record_owner(r), r["number"])
     owners.setdefault(actor, None)
+    # By title, not assignee: someone may have been unassigned, or have left.
     existing = {
-        a["login"]
+        i["title"]
         for i in in_cycle
         if CHECK_IN_LABEL in {lb["name"] for lb in i["labels"]}
-        for a in i["assignees"]
     }
     created = 0
     for login, record in owners.items():
-        if login in existing:
+        title = f"{cycle} check-in: {login}"
+        if title in existing:
             continue
         create(
-            f"{cycle} check-in: {login}",
+            title,
             check_in_body(
                 cycle,
                 due,
@@ -607,7 +634,10 @@ def start_cycle(
             or CYCLE_MARKER not in (m.get("description") or "")
         ):
             continue
-        for i in issues_with(repo, f"milestone={m['number']}&state=open"):
+        # Only check-ins: closing a record this way would leave its rows in
+        # the data, since closes by GITHUB_TOKEN trigger no workflow.
+        query = f"milestone={m['number']}&state=open&labels={CHECK_IN_LABEL}"
+        for i in issues_with(repo, query):
             comment = f"Replaced by {cycle}'s check-ins."
             gh(
                 "issue",
@@ -663,7 +693,7 @@ def main(argv: list[str] | None = None) -> None:
             due,
             args.name,
             os.environ["GITHUB_ACTOR"],
-            args.criteria_pr.strip(),
+            parse_pr(args.criteria_pr),
             json.loads(args.personal_form.read_text(encoding="utf-8"))
             if args.personal_form
             else None,

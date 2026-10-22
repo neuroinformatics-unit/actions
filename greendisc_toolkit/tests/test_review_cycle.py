@@ -80,11 +80,28 @@ def test_members_are_writers_and_maintainers():
     assert rc.members(collaborators) == ["amy", "boss", "rep"]
 
 
-def test_record_owner_is_assignee_else_author():
-    """A record created by a review belongs to its assignee."""
-    issue = {"user": {"login": "bot"}, "assignees": [{"login": "amy"}]}
-    assert rc.record_owner(issue) == "amy"
-    assert rc.record_owner({"user": {"login": "amy"}, "assignees": []}) == "amy"
+def test_record_owner_is_author_or_bots_assignee():
+    """A review's record belongs to its assignee; anyone else's to its author."""
+    bot = {"login": "github-actions[bot]", "type": "Bot"}
+    assert rc.record_owner({"user": bot, "assignees": [{"login": "amy"}]}) == "amy"
+    amy = {"login": "amy", "type": "User"}
+    assert rc.record_owner({"user": amy, "assignees": []}) == "amy"
+    # Reassigning someone's own record doesn't make it someone else's.
+    assert rc.record_owner({"user": amy, "assignees": [{"login": "bob"}]}) == "amy"
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"), [("", ""), (" 42 ", "42"), ("#42", "42")]
+)
+def test_criteria_pr_is_a_number(value, expected):
+    """A criteria PR may be given with or without a leading #."""
+    assert rc.parse_pr(value) == expected
+
+
+def test_criteria_pr_rejects_text():
+    """Anything but a number is rejected before it reaches a check-in."""
+    with pytest.raises(ValueError, match="not a pull request number"):
+        rc.parse_pr("see the sync PR")
 
 
 def test_form_body_matches_issue_rendering():

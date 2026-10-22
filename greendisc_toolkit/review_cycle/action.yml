@@ -48,21 +48,26 @@ runs:
         GROUP_FORM: ${{ inputs.group-form }}
       run: |
         # Anyone with write access can run a workflow; only maintainers and
-        # admins (e.g. the representative) may start a review.
-        role=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$GITHUB_ACTOR/permission" -q .role_name || echo none)
+        # admins (e.g. the representative) may start a review. Check whoever
+        # triggered this run: on a re-run, GITHUB_ACTOR is still the person
+        # who started the first run (who stays the representative).
+        role=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$GITHUB_TRIGGERING_ACTOR/permission" -q .role_name || echo none)
         case "$role" in
           admin|maintain) ;;
           *) echo "::error::Only people with the Maintain or Admin role can start a review (you have '${role:-none}')."; exit 1 ;;
         esac
         # yq is preinstalled on GitHub-hosted runners; the script stays stdlib-only.
         form_args=()
-        if [ -n "$PERSONAL_FORM" ] && [ -f "$PERSONAL_FORM" ]; then
-          yq -o=json '.' "$PERSONAL_FORM" > "$RUNNER_TEMP/personal-form.json"
-          form_args=(--personal-form "$RUNNER_TEMP/personal-form.json")
-        fi
-        if [ -n "$GROUP_FORM" ] && [ -f "$GROUP_FORM" ]; then
-          yq -o=json '.' "$GROUP_FORM" > "$RUNNER_TEMP/group-form.json"
-          form_args+=(--group-form "$RUNNER_TEMP/group-form.json")
-        fi
+        for kind in personal group; do
+          var="${kind^^}_FORM"
+          form="${!var}"
+          [ -z "$form" ] && continue
+          if [ ! -f "$form" ]; then
+            echo "::error::The $kind record form '$form' doesn't exist; fix the $kind-form input, or set it to '' to create no $kind records."
+            exit 1
+          fi
+          yq -o=json '.' "$form" > "$RUNNER_TEMP/$kind-form.json"
+          form_args+=(--"$kind"-form "$RUNNER_TEMP/$kind-form.json")
+        done
         python "$GITHUB_ACTION_PATH/review_cycle.py" \
           --due "$DUE" --name "$NAME" --criteria-pr "$CRITERIA_PR" --data-dir "$DATA_DIR" "${form_args[@]}"

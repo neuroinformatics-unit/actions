@@ -4,16 +4,18 @@ This action starts a review cycle in a repository created from the Green DiSC to
 
 It:
 
-1. checks that whoever ran the workflow has the **Maintain** or **Admin** role, and stops otherwise;
-2. creates the group record if the repository has never had one (from the group record form, assigned to whoever started the review), and a personal record for each member who has never had one (people with the Write, Maintain or Admin role; not bots), from the personal record form's tables, titled `Green DiSC personal record: <username>` and assigned to them;
-3. creates the cycle's milestone (default name `Review-<year>-<month>` of the due date; spaces in a given name become hyphens, because GitHub's milestone links don't quote names);
+1. checks that whoever ran the workflow (or re-ran it) has the **Maintain** or **Admin** role, and stops otherwise; it also stops if a form input names a file that doesn't exist;
+2. creates the group record if the repository has never had one (from the group record form, assigned to whoever started the review), and a personal record for each member who has never had one (people with the Write, Maintain or Admin role, which in an organisation includes its owners; not bots), from the personal record form's tables, titled `Green DiSC personal record: <username>` and assigned to them;
+3. creates the cycle's milestone (default name `Review-<year>-<month>` of the due date; spaces in a given name become hyphens, because GitHub's milestone links don't quote names). If it exists and is open, its due date is updated; if it is closed, the action stops rather than reviving a past cycle;
 4. creates a check-in for each owner of an open personal record, assigned to them, asking them to go over their record, the group record and the guides (suggesting and reviewing changes as pull requests); the check-in of whoever started the review (the representative) also asks them to save the group record, check the README's representative section, plus, only when they apply: checking and merging the criteria sync pull request (when `criteria-pr` is given), updating any published copy of the guides (when `guides/` changed since the previous cycle started, with a link to each changed file's diff), and dealing with data rows whose record isn't open;
-5. closes the previous cycle: its open check-ins are closed, then its milestone is closed;
+5. closes the previous cycle: its open check-ins are closed (other issues in its milestone are left alone), then its milestone is closed;
 6. writes a summary to the job summary, including records with unsaved changes.
 
 Check-ins are to-do lists. Lines for records end with a hidden `<!-- record:N -->` marker, which [`save_record`](../save_record/README.md) ticks when record N is saved. People tick the other items and close their check-in themselves; `save_record` reopens it if an item is unticked or a record on it wasn't saved during the review, unless whoever closed it has the Maintain or Admin role (the representative, e.g. for a member on leave).
 
-Running it again for the same cycle adds only what's missing, so a failed run can be re-run.
+Running it again for the same cycle adds only what's missing (check-ins are matched by title, `<cycle> check-in: <username>`), so a failed run can be re-run.
+
+A personal record belongs to whoever it was created for: its assignee if the review created it, otherwise whoever opened it, the same rule as [`save_record`](../save_record/README.md)'s duplicate check.
 
 The workflow's inputs reach the script only through environment variables. `yq`, preinstalled on GitHub-hosted runners, converts the issue forms to JSON, so the script uses the standard library only.
 
@@ -23,7 +25,7 @@ The workflow's inputs reach the script only through environment variables. `yq`,
 |---|---|---|
 | `due` | (required) | Review date, as `YYYY-MM-DD`; the milestone's due date |
 | `name` | `Review-<year>-<month>` | Cycle and milestone name |
-| `criteria-pr` | (blank) | Number of an open criteria sync pull request; adds an item to the representative's check-in |
+| `criteria-pr` | (blank) | Number of an open criteria sync pull request (`42` or `#42`); adds an item to the representative's check-in |
 | `personal-form` | `.github/ISSUE_TEMPLATE/personal-record.yml` | Issue form used for new personal records; empty to create none |
 | `group-form` | `.github/ISSUE_TEMPLATE/group-record.yml` | Issue form used for the group record if there has never been one; empty to create none |
 | `data-dir` | `data` | CSV files written by `save_record`; rows whose record isn't open are listed in the representative's check-in |
