@@ -23,7 +23,8 @@ Issue content is untrusted: it reaches the script only through environment varia
 | Input | Default | Description |
 |---|---|---|
 | `data-dir` | `data` | Directory for the CSV files |
-| `token` | `github.token` | Token with `contents: write` and `issues: write` |
+
+The action uses the job's `GITHUB_TOKEN`, so the job needs `permissions: contents: write, issues: write`. Other tokens (a personal access token or a GitHub App's) aren't supported: the check-in close check and record ownership rely on the bot's replies and records being by `github-actions[bot]`. It commits to the default branch, so branch protection that requires pull requests blocks it.
 
 ## Examples of usage
 

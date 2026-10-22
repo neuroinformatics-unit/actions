@@ -6,10 +6,6 @@ inputs:
     description: 'Directory for the CSV files.'
     required: false
     default: 'data'
-  token:
-    description: 'Token with contents: write and issues: write.'
-    required: false
-    default: ${{ github.token }}
 
 runs:
   using: 'composite'
@@ -22,7 +18,10 @@ runs:
     - name: Handle record issue
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.token }}
+        # The job's GITHUB_TOKEN, not an input: the check-in close check and
+        # record ownership rely on replies and reviews' records being by
+        # github-actions[bot].
+        GH_TOKEN: ${{ github.token }}
         DATA_DIR: ${{ inputs.data-dir }}
         EVENT: ${{ github.event_name }}
         ACTION: ${{ github.event.action }}
