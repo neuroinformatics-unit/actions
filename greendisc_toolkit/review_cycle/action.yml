@@ -25,10 +25,6 @@ inputs:
     description: 'Directory of the CSV files written by save_record, checked for rows whose record no longer exists.'
     required: false
     default: 'data'
-  token:
-    description: 'Token with issues: write and contents: read.'
-    required: false
-    default: ${{ github.token }}
 
 runs:
   using: 'composite'
@@ -41,7 +37,9 @@ runs:
     - name: Start review cycle
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.token }}
+        # The job's GITHUB_TOKEN, not an input: save_record treats records
+        # created by github-actions[bot] as belonging to their first assignee.
+        GH_TOKEN: ${{ github.token }}
         DUE: ${{ inputs.due }}
         NAME: ${{ inputs.name }}
         CRITERIA_PR: ${{ inputs.criteria-pr }}

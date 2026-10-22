@@ -27,7 +27,8 @@ The workflow's inputs reach the script only through environment variables. `yq`,
 | `personal-form` | `.github/ISSUE_TEMPLATE/personal-record.yml` | Issue form used for new personal records; empty to create none |
 | `group-form` | `.github/ISSUE_TEMPLATE/group-record.yml` | Issue form used for the group record if there has never been one; empty to create none |
 | `data-dir` | `data` | CSV files written by `save_record`; rows whose record isn't open are listed in the representative's check-in |
-| `token` | `github.token` | Token with `issues: write` and `contents: read` (guide commits) |
+
+The action uses the job's `GITHUB_TOKEN`, so the job needs `permissions: issues: write, contents: read` (`contents` for the guide changes). Other tokens (a personal access token or a GitHub App's) aren't supported: [`save_record`](../save_record/README.md) gives a record created by `github-actions[bot]` to whoever it was first assigned to, and one created by anyone else to its creator.
 
 ## Examples of usage
 
