@@ -177,8 +177,10 @@ runs:
           owner="${owner:-$AUTHOR}"
         fi
         # One record per person (personal) or per repository (group): only the
-        # oldest labelled one counts.
-        owner_of='(.assignees[0].login // .author.login)'
+        # oldest labelled one counts. Owners of other records follow the same
+        # rule, except a bot-created record's current assignee stands in for
+        # its first (which would need each issue's events).
+        owner_of='(if .author.is_bot then (.assignees[0].login // "") else .author.login end)'
         filter='.[] | select(.number < $n)'
         if [ "$kind" = personal ]; then filter+=" | select($owner_of == \$o)"; fi
         older=$(gh issue list --label "$label" --state all --limit 500 \
