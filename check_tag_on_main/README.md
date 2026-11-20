@@ -59,7 +59,6 @@ Similarly, to only deploy the documentation if the trigger is a tag that points 
           python-version: 3.12
           use-make: true
           fetch-tags: true
-          use-artifactci: lazy
 
   # Check tag
   check_tag:

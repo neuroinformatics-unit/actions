@@ -32,12 +32,6 @@ inputs:
     required: false
     type: boolean
     default: true
-  use-artifactci:
-    description: 'Set to "lazy" or "eager" to use artifact.ci with the specified mode; "false" uses actions/upload-artifact.'
-    required: false
-    type: string
-    default: 'false'
-    # See https://www.artifact.ci/advanced
 
 runs:
   using: 'composite'
@@ -112,28 +106,7 @@ runs:
       fi
 
   - name: Upload the content for deployment
-    if: ${{ inputs.use-artifactci == 'false' }}
     uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
     with:
       name: docs-build
       path: ./docs/build/
-
-  - name: Upload the content for deployment using artifact.ci
-    if: ${{ inputs.use-artifactci != 'false' }}
-    id: artifactci-upload
-    uses: mmkal/artifact.ci/upload@main
-    with:
-      name: docs-build
-      path: ./docs/build/
-      artifactci-mode: ${{ inputs.use-artifactci }} 
-
-  - name: Print docs preview URL to step summary
-    if: ${{ inputs.use-artifactci != 'false' }}
-    shell: bash
-    run: |
-      if [ "${{ inputs.use-artifactci }}" == "lazy" ]; then
-        echo "Preview docs at ${{ steps.artifactci-upload.outputs.artifactci-run-url }}, " >> $GITHUB_STEP_SUMMARY
-        echo "under the _Detected Entrypoints_ section (requires GitHub sign-in)" >> $GITHUB_STEP_SUMMARY
-      else
-        echo "Preview docs at: ${{ steps.artifactci-upload.outputs.artifactci-entrypoint-0 }}" >> $GITHUB_STEP_SUMMARY
-      fi
