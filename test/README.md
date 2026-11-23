@@ -11,6 +11,7 @@ With `v4` of the Codecov GitHub Action, tokenless uploads are not supported. You
 
 ```yaml
 - uses: neuroinformatics-unit/actions/test@v3
-      with:
-        secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
+  with:
+    python-version: ${{ matrix.python-version }}
+    secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
 ```
