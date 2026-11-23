@@ -147,8 +147,15 @@ The `use-make` input is optional as well and defaults to `false`. If set to `tru
 * An example workflow, for building and deploying documentation can be found at [example_build_and_deploy_docs.yml](./example_docs_build_and_deploy.yml).
 # Releasing a new version
 
-1. Create a new release through the GitHub releases UI. Make sure you add the appropriate tag to the release.
-2. If not incrementing a major version (ie. going from 2.1 > 2.2), move the major tag (e.g. <tagname>=v2) to the most recent tag:
+1. If incrementing a major version (e.g. going from v3 > v4), first open a PR that updates the references to these actions in the READMEs and example workflows to the new major tag:
+
+```bash
+grep -rlE 'neuroinformatics-unit/actions/[A-Za-z_]+@v[0-9]+' --include='*.md' --include='*.yml' . \
+  | xargs perl -pi -e 's#(neuroinformatics-unit/actions/[A-Za-z_]+)\@v\d+\b#$1\@v4#g'
+```
+
+2. Create a new release through the GitHub releases UI. Make sure you add the appropriate tag to the release.
+3. If not incrementing a major version (ie. going from 2.1 > 2.2), move the major tag (e.g. <tagname>=v2) to the most recent tag:
 
 ```bash
 git push origin :refs/tags/<tagname>
