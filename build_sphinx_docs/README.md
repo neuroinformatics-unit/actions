@@ -49,7 +49,7 @@ If the linkcheck step produces "false positives" for your project (i.e. marking 
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+    - uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
       with:
         check-links: false
   ```
@@ -60,7 +60,7 @@ build_sphinx_docs:
   name: Build Sphinx Docs
   runs-on: ubuntu-latest
   steps:
-  - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+  - uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
     with:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 ```

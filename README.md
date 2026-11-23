@@ -20,7 +20,7 @@ jobs:
         python-version: [3.9, 3.10]
 
     steps:
-    - uses: neuroinformatics-unit/actions/test@main
+    - uses: neuroinformatics-unit/actions/test@v3
         with:
           python-version: ${{ matrix.python-version }}
           # Replace CODECOV_TOKEN with the name of the repository secret containing the upload token from codecov.io
@@ -41,7 +41,7 @@ jobs:
     name: Run linting
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/lint@main
+    - uses: neuroinformatics-unit/actions/lint@v3
 ```
 
 ## Manifest
@@ -55,7 +55,7 @@ jobs:
     name: Check manifest
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/check_manifest@main
+    - uses: neuroinformatics-unit/actions/check_manifest@v3
 ```
 
 ## Build distributions
@@ -69,7 +69,7 @@ needs: [test]
 if: github.event_name == 'push' && github.ref_type == 'tag'
 runs-on: ubuntu-latest
 steps:
-- uses: neuroinformatics-unit/actions/build_sdist_wheels@main
+- uses: neuroinformatics-unit/actions/build_sdist_wheels@v3
 ```
 
 ## Build Sphinx documentation
@@ -81,7 +81,7 @@ build_sphinx_docs:
   name: Build Sphinx Docs
   runs-on: ubuntu-latest
   steps:
-  - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+  - uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
     with:
       python-version: 3.10
       check-links: false
@@ -106,7 +106,7 @@ deploy_sphinx_docs:
   if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
   runs-on: ubuntu-latest
   steps:
-  - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main
+  - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v3
     with:
       secret_input: ${{ secrets.GITHUB_TOKEN }}
       use-make: false
@@ -127,12 +127,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build documentation
-        uses: neuroinformatics-unit/actions/build_sphinx_docs
+        uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
         with:
           use-make: true
 
       - name: Deploy documentation
-        uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multi_version
+        uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multiversion@v3
         with:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true

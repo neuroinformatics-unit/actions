@@ -20,7 +20,7 @@ jobs:
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+      - uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
@@ -30,7 +30,7 @@ jobs:
     if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main
+      - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v3
         with:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
 

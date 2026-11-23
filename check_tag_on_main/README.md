@@ -18,7 +18,7 @@ For example, to only build and publish the source distribution if the trigger is
     outputs:
       tag_on_main: ${{ steps.check.outputs.tag_on_main }}
     steps:
-      - uses: neuroinformatics-unit/actions/check_tag_on_main@v1
+      - uses: neuroinformatics-unit/actions/check_tag_on_main@v3
         id: check
 
   # Build if trigger is a pushed tag that points to commit on main
@@ -28,7 +28,7 @@ For example, to only build and publish the source distribution if the trigger is
     if: github.event_name == 'push' && needs.check_tag.outputs.tag_on_main == 'true'
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v2
+    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v3
 
   # Publish to PyPI if trigger is a pushed tag that points to commit on main
   upload_all:
@@ -54,7 +54,7 @@ Similarly, to only deploy the documentation if the trigger is a tag that points 
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+      - uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
         with:
           python-version: 3.12
           use-make: true
@@ -67,7 +67,7 @@ Similarly, to only deploy the documentation if the trigger is a tag that points 
     outputs:
       tag_on_main: ${{ steps.check.outputs.tag_on_main }}
     steps:
-      - uses: neuroinformatics-unit/actions/check_tag_on_main@v1
+      - uses: neuroinformatics-unit/actions/check_tag_on_main@v3
         id: check
           
   # Deploy documentation if trigger is a pushed tag that points to commit on main
@@ -79,7 +79,7 @@ Similarly, to only deploy the documentation if the trigger is a tag that points 
     if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || needs.check_tag.outputs.tag_on_main == 'true')) || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v2
+      - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v3
         with:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true
