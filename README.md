@@ -29,6 +29,30 @@ jobs:
           codecov-flags: "my-flag"  # Optional
 ```
 
+## Test (uv)
+An alternative to the [Test](#test) action above that doesn't rely on `tox`.
+Runs Python tests with `pytest`, using `uv` to install the package and its dependencies, and uploads a coverage report to `codecov`.
+See the [Test (uv) README](./test-uv/README.md) for all inputs.
+
+Example usage:
+
+```yaml
+jobs:
+  test:
+    name: ${{ matrix.platform }} py${{ matrix.python-version }}
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.12", "3.13"]
+
+    steps:
+    - uses: neuroinformatics-unit/actions/test-uv@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
+```
+
 ## Lint
 Lints code using `pre-commit`. A `.pre-commit-config.yaml` file must be present
 in the root of the repository.
