@@ -35,12 +35,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build documentation
-        uses: neuroinformatics-unit/actions/build_sphinx_docs
+        uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
         with:
           use-make: true
 
       - name: Deploy documentation
-        uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multi_version
+        uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multiversion@v3
         with:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true

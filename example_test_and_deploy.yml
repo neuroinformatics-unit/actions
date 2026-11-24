@@ -6,13 +6,13 @@ jobs:
   linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/lint@main
+      - uses: neuroinformatics-unit/actions/lint@v3
 
   manifest:
     name: Check Manifest
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/check_manifest@main
+      - uses: neuroinformatics-unit/actions/check_manifest@v3
 
   test:
     needs: [linting, manifest]
@@ -34,7 +34,7 @@ jobs:
 
     steps:
       # Run tests
-      - uses: neuroinformatics-unit/actions/test@main
+      - uses: neuroinformatics-unit/actions/test@v3
         with:
           python-version: ${{ matrix.python-version }}
           # Replace CODECOV_TOKEN with the name of the repository secret containing the upload token from codecov.io
@@ -46,7 +46,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/build_sdist_wheels@main
+    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v3
 
 
   upload_all:

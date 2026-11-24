@@ -20,13 +20,37 @@ jobs:
         python-version: [3.9, 3.10]
 
     steps:
-    - uses: neuroinformatics-unit/actions/test@main
+    - uses: neuroinformatics-unit/actions/test@v3
         with:
           python-version: ${{ matrix.python-version }}
           # Replace CODECOV_TOKEN with the name of the repository secret containing the upload token from codecov.io
           secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
           use-xvfb: true  # Optional, defaults to false if not specified
           codecov-flags: "my-flag"  # Optional
+```
+
+## Test (uv)
+An alternative to the [Test](#test) action above that doesn't rely on `tox`.
+Runs Python tests with `pytest`, using `uv` to install the package and its dependencies, and uploads a coverage report to `codecov`.
+See the [Test (uv) README](./test-uv/README.md) for all inputs.
+
+Example usage:
+
+```yaml
+jobs:
+  test:
+    name: ${{ matrix.platform }} py${{ matrix.python-version }}
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.12", "3.13"]
+
+    steps:
+    - uses: neuroinformatics-unit/actions/test-uv@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+        secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
 ```
 
 ## Lint
@@ -41,7 +65,7 @@ jobs:
     name: Run linting
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/lint@main
+    - uses: neuroinformatics-unit/actions/lint@v3
 ```
 
 ## Manifest
@@ -55,7 +79,7 @@ jobs:
     name: Check manifest
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/check_manifest@main
+    - uses: neuroinformatics-unit/actions/check_manifest@v3
 ```
 
 ## Build distributions
@@ -69,7 +93,7 @@ needs: [test]
 if: github.event_name == 'push' && github.ref_type == 'tag'
 runs-on: ubuntu-latest
 steps:
-- uses: neuroinformatics-unit/actions/build_sdist_wheels@main
+- uses: neuroinformatics-unit/actions/build_sdist_wheels@v3
 ```
 
 ## Build Sphinx documentation
@@ -81,7 +105,7 @@ build_sphinx_docs:
   name: Build Sphinx Docs
   runs-on: ubuntu-latest
   steps:
-  - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
+  - uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
     with:
       python-version: 3.10
       check-links: false
@@ -106,7 +130,7 @@ deploy_sphinx_docs:
   if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
   runs-on: ubuntu-latest
   steps:
-  - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@main
+  - uses: neuroinformatics-unit/actions/deploy_sphinx_docs@v3
     with:
       secret_input: ${{ secrets.GITHUB_TOKEN }}
       use-make: false
@@ -127,12 +151,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build documentation
-        uses: neuroinformatics-unit/actions/build_sphinx_docs
+        uses: neuroinformatics-unit/actions/build_sphinx_docs@v3
         with:
           use-make: true
 
       - name: Deploy documentation
-        uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multi_version
+        uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multiversion@v3
         with:
           secret_input: ${{ secrets.GITHUB_TOKEN }}
           use-make: true
@@ -147,8 +171,20 @@ The `use-make` input is optional as well and defaults to `false`. If set to `tru
 * An example workflow, for building and deploying documentation can be found at [example_build_and_deploy_docs.yml](./example_docs_build_and_deploy.yml).
 # Releasing a new version
 
-1. Create a new release through the GitHub releases UI. Make sure you add the appropriate tag to the release.
-2. If not incrementing a major version (ie. going from 2.1 > 2.2), move the major tag (e.g. <tagname>=v2) to the most recent tag:
+1. If incrementing a major version (e.g. going from v3 > v4), first open a PR that updates the references to these actions in the READMEs and example workflows to the new major tag.
+The following snippet bumps all references to the next major version (run from the repo root in a Unix shell, or Git Bash/WSL on Windows):
+
+```bash
+PATTERN='neuroinformatics-unit/actions/[A-Za-z_-]+@v[0-9]+'
+FILES=$(grep -rlE "$PATTERN" --include='*.md' --include='*.yml' --include='*.yaml' .)
+CURRENT=$(grep -hoE "$PATTERN" $FILES | sed -E 's/.*@v//' | sort -n | tail -1)
+NEXT=$((CURRENT + 1))
+echo "Bumping v$CURRENT -> v$NEXT"
+NEXT=$NEXT perl -pi -e 's#(neuroinformatics-unit/actions/[A-Za-z_-]+)\@v\d+\b#$1\@v$ENV{NEXT}#g' $FILES
+```
+
+2. Create a new release through the GitHub releases UI. Make sure you add the appropriate tag to the release.
+3. If not incrementing a major version (ie. going from 2.1 > 2.2), move the major tag (e.g. <tagname>=v2) to the most recent tag:
 
 ```bash
 git push origin :refs/tags/<tagname>
