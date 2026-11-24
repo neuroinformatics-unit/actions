@@ -147,11 +147,16 @@ The `use-make` input is optional as well and defaults to `false`. If set to `tru
 * An example workflow, for building and deploying documentation can be found at [example_build_and_deploy_docs.yml](./example_docs_build_and_deploy.yml).
 # Releasing a new version
 
-1. If incrementing a major version (e.g. going from v3 > v4), first open a PR that updates the references to these actions in the READMEs and example workflows to the new major tag:
+1. If incrementing a major version (e.g. going from v3 > v4), first open a PR that updates the references to these actions in the READMEs and example workflows to the new major tag.
+The following snippet bumps all references to the next major version (run from the repo root in a Unix shell, or Git Bash/WSL on Windows):
 
 ```bash
-grep -rlE 'neuroinformatics-unit/actions/[A-Za-z_]+@v[0-9]+' --include='*.md' --include='*.yml' . \
-  | xargs perl -pi -e 's#(neuroinformatics-unit/actions/[A-Za-z_]+)\@v\d+\b#$1\@v4#g'
+PATTERN='neuroinformatics-unit/actions/[A-Za-z_-]+@v[0-9]+'
+FILES=$(grep -rlE "$PATTERN" --include='*.md' --include='*.yml' --include='*.yaml' .)
+CURRENT=$(grep -hoE "$PATTERN" $FILES | sed -E 's/.*@v//' | sort -n | tail -1)
+NEXT=$((CURRENT + 1))
+echo "Bumping v$CURRENT -> v$NEXT"
+NEXT=$NEXT perl -pi -e 's#(neuroinformatics-unit/actions/[A-Za-z_-]+)\@v\d+\b#$1\@v$ENV{NEXT}#g' $FILES
 ```
 
 2. Create a new release through the GitHub releases UI. Make sure you add the appropriate tag to the release.
