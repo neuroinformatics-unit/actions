@@ -1,0 +1,23 @@
+[project]
+name = "greendisc-toolkit-actions"
+version = "0.1.0"
+description = "Composite actions for the Green DiSC toolkit"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest", "ruff", "pyyaml"]
+
+[tool.pytest.ini_options]
+pythonpath = ["sync_criteria", "save_record", "review_cycle", "export_evidence"]
+testpaths = ["tests"]
+
+[tool.ruff.lint]
+extend-select = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.uv]
+# Own workspace root: ignore any pyproject.toml in parent directories.
+workspace = {}

@@ -1,0 +1,28 @@
+name: Green DiSC toolkit
+
+on:
+  push:
+    branches: [main]
+    paths: ["greendisc_toolkit/**", ".github/workflows/greendisc_toolkit.yml"]
+  pull_request:
+    paths: ["greendisc_toolkit/**", ".github/workflows/greendisc_toolkit.yml"]
+
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: greendisc_toolkit
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - run: uv run ruff check
+      - run: uv run ruff format --check
+      - run: uv run pytest
+
