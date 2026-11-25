@@ -1,0 +1,65 @@
+name: 'Green DiSC: export evidence'
+description: 'Export an anonymised Green DiSC evidence pack (a CSV per criterion, the guides and an index page) from the saved records.'
+
+inputs:
+  data-dir:
+    description: 'Directory of the CSV files written by save_record.'
+    required: false
+    default: 'data'
+  guides-dir:
+    description: 'Directory of the guides.'
+    required: false
+    default: 'guides'
+  drop-columns:
+    description: 'Comma-separated columns to leave out, as headed in the records.'
+    required: false
+    default: 'Location,Asset tag'
+  keep-all:
+    description: 'Set to "true" to leave no columns out (members are still numbered).'
+    required: false
+    default: 'false'
+  with-reviews:
+    description: 'Set to "false" to leave out the review history (which needs issues: read).'
+    required: false
+    default: 'true'
+  out:
+    description: 'Output directory; must not exist or be empty. Defaults to a fresh directory under the runner temp directory.'
+    required: false
+    default: ''
+  token:
+    description: 'Token with issues: read, for the review history.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  path:
+    description: 'Directory holding the evidence pack, e.g. for actions/upload-artifact.'
+    value: ${{ steps.export.outputs.path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version: '3.13'
+
+    # Inputs reach the script only through env, never the shell code.
+    - name: Export evidence
+      id: export
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        GH_REPO: ${{ github.repository }}
+        DATA_DIR: ${{ inputs.data-dir }}
+        GUIDES_DIR: ${{ inputs.guides-dir }}
+        DROP_COLUMNS: ${{ inputs.drop-columns }}
+        KEEP_ALL: ${{ inputs.keep-all }}
+        WITH_REVIEWS: ${{ inputs.with-reviews }}
+        OUT: ${{ inputs.out }}
+      run: |
+        out="${OUT:-$RUNNER_TEMP/greendisc-evidence}"
+        args=(--out "$out" --data-dir "$DATA_DIR" --guides-dir "$GUIDES_DIR" --drop-columns "$DROP_COLUMNS")
+        if [ "$KEEP_ALL" = true ]; then args+=(--keep-all); fi
+        if [ "$WITH_REVIEWS" = true ]; then args+=(--with-reviews); fi
+        python "$GITHUB_ACTION_PATH/export_evidence.py" "${args[@]}"
+        echo "path=$out" >> "$GITHUB_OUTPUT"
