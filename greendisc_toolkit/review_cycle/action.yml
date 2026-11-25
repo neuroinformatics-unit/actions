@@ -1,0 +1,73 @@
+name: 'Green DiSC: start review cycle'
+description: 'Start a Green DiSC review cycle: a milestone and a check-in per record owner, including the representative. Closes the previous cycle.'
+
+inputs:
+  due:
+    description: 'Review date, as YYYY-MM-DD. Becomes the milestone due date.'
+    required: true
+  name:
+    description: 'Cycle name; spaces become hyphens. Defaults to "Review-<year>-<month>" of the due date.'
+    required: false
+    default: ''
+  criteria-pr:
+    description: 'Number of an open criteria sync pull request, if any; the representative is asked to check and merge it.'
+    required: false
+    default: ''
+  personal-form:
+    description: 'Issue form whose tables become the body of personal records created for members without one. Leave empty to create none.'
+    required: false
+    default: '.github/ISSUE_TEMPLATE/personal-record.yml'
+  group-form:
+    description: 'Issue form whose tables become the body of the group record, if the repository has never had one. Leave empty to create none.'
+    required: false
+    default: '.github/ISSUE_TEMPLATE/group-record.yml'
+  data-dir:
+    description: 'Directory of the CSV files written by save_record, checked for rows whose record no longer exists.'
+    required: false
+    default: 'data'
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+      with:
+        python-version: '3.13'
+
+    # Inputs reach the script only through env, never the shell code.
+    - name: Start review cycle
+      shell: bash
+      env:
+        # The job's GITHUB_TOKEN, not an input: save_record treats records
+        # created by github-actions[bot] as belonging to their first assignee.
+        GH_TOKEN: ${{ github.token }}
+        DUE: ${{ inputs.due }}
+        NAME: ${{ inputs.name }}
+        CRITERIA_PR: ${{ inputs.criteria-pr }}
+        DATA_DIR: ${{ inputs.data-dir }}
+        PERSONAL_FORM: ${{ inputs.personal-form }}
+        GROUP_FORM: ${{ inputs.group-form }}
+      run: |
+        # Anyone with write access can run a workflow; only maintainers and
+        # admins (e.g. the representative) may start a review. Check whoever
+        # triggered this run: on a re-run, GITHUB_ACTOR is still the person
+        # who started the first run (who stays the representative).
+        role=$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$GITHUB_TRIGGERING_ACTOR/permission" -q .role_name || echo none)
+        case "$role" in
+          admin|maintain) ;;
+          *) echo "::error::Only people with the Maintain or Admin role can start a review (you have '${role:-none}')."; exit 1 ;;
+        esac
+        # yq is preinstalled on GitHub-hosted runners; the script stays stdlib-only.
+        form_args=()
+        for kind in personal group; do
+          var="${kind^^}_FORM"
+          form="${!var}"
+          [ -z "$form" ] && continue
+          if [ ! -f "$form" ]; then
+            echo "::error::The $kind record form '$form' doesn't exist; fix the $kind-form input, or set it to '' to create no $kind records."
+            exit 1
+          fi
+          yq -o=json '.' "$form" > "$RUNNER_TEMP/$kind-form.json"
+          form_args+=(--"$kind"-form "$RUNNER_TEMP/$kind-form.json")
+        done
+        python "$GITHUB_ACTION_PATH/review_cycle.py" \
+          --due "$DUE" --name "$NAME" --criteria-pr "$CRITERIA_PR" --data-dir "$DATA_DIR" "${form_args[@]}"
