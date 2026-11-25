@@ -26,3 +26,18 @@ jobs:
       - run: uv run ruff format --check
       - run: uv run pytest
 
+  # Run the action itself, as a caller would, against live upstream (the unit
+  # tests cover parsing every track at a pinned upstream commit).
+  sync_criteria:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./greendisc_toolkit/sync_criteria
+        with:
+          track: RG
+          output: criteria.yml
+      - run: cat criteria.yml
